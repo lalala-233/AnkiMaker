@@ -1,7 +1,7 @@
 use std::{
     error::Error,
-    fs::File,
-    io::{stdin, BufRead, BufReader},
+    fs::{self, File},
+    io::{self, Write},
 };
 
 fn main() {
@@ -12,13 +12,29 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn Error>> {
     let mut path = String::new();
-    stdin().read_line(&mut path)?;
-    let file = File::open(path.trim())?;
-    let reader = BufReader::new(&file);
+    //stdin().read_line(&mut path)?;
+    let path = path.trim();
+    let path = "test.toml".to_string();
+    let content = fs::read_to_string(path)?;
 
-    for line in reader.lines() {
-        println!("{}", line?);
+    let toml: anki_generate::Config = toml::from_str(&content)?;
+
+    println!("{:?}", toml);
+
+    for line in content.lines() {
+        println!("{}", line);
     }
 
+    // Read the origin.toml
+    // parse the header and the content   
+    // Write the result.txt
+
+    Ok(())
+}
+fn write(content: Vec<String>) -> io::Result<()> {
+    let mut file = File::create("result.txt")?;
+    for line in content {
+        file.write_all(line.as_bytes())?;
+    }
     Ok(())
 }
