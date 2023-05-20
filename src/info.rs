@@ -3,8 +3,10 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug)]
 pub struct Info {
     author: Option<String>,
+    card_template: String,
+    deck: String,
     dynasty: Option<String>,
-    notetype: String,
+    separator: Option<char>,
     term: String,
     title: String,
 }
@@ -12,9 +14,6 @@ pub struct Info {
 const SEPARATOR: char = '|';
 
 impl Info {
-    pub fn title(&self) -> &String {
-        &self.title
-    }
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
@@ -28,11 +27,22 @@ impl Info {
     }
     pub fn generate_header(&self) -> Vec<String> {
         let mut header = Vec::new();
-        header.push(format!("#separator:{}", SEPARATOR));
+        if let Some(separator) = self.separator {
+            header.push(format!("#separator:{}", separator));
+        } else {
+            header.push(format!("#separator:{}", SEPARATOR));
+        }
         header.push("#html:true".to_string());
-        header.push(format!("#notetype:{}", self.notetype));
-        header.push(format!("#deck:{}", self.title));
+        header.push(format!("#notetype:{}", self.card_template));
+        header.push(format!("#deck:{}::{}", self.deck, self.title));
         header
+    }
+    pub fn set_note_type(&mut self, note_type: &String) {
+        self.deck = format!("{}::{}", self.deck, note_type);
+        self.card_template = format!("{}::{}", self.card_template, note_type);
+    }
+    pub fn title(&self) -> &String {
+        &self.title
     }
 }
 
@@ -42,132 +52,138 @@ mod public {
     #[test]
     pub fn generate_author_info() {
         let author = Some("我".to_string());
+        let card_template = "测试模板".to_string();
+        let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
-        let notetype = "测试类型".to_string();
+        let separator = Some('|');
         let term = "高中".to_string();
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
             author: author.clone(),
+            card_template,
+            deck,
             dynasty: dynasty.clone(),
-            notetype,
+            separator,
             term,
             title,
         };
-        let expect = format!(
-            "（{}）{}",
-            dynasty.clone().unwrap(),
-            author.clone().unwrap()
-        );
+        let expect = format!("（{}）{}", dynasty.unwrap(), author.unwrap());
         let actual = info.generate_author_info();
         assert_eq!(expect, actual);
-        //no author
+        //no Option
         let info = Info {
             author: None,
-            ..info
-        };
-        let expect = format!("（{}）", dynasty.unwrap());
-        let actual = info.generate_author_info();
-        assert_eq!(expect, actual);
-        //no author and dynasty
-        let info = Info {
             dynasty: None,
+            separator: None,
             ..info
         };
         let expect = String::new();
-        let actual = info.generate_author_info();
-        assert_eq!(expect, actual);
-        //no dynasty
-        let info = Info {
-            author: author.clone(),
-            ..info
-        };
-        let expect = author.unwrap();
         let actual = info.generate_author_info();
         assert_eq!(expect, actual);
     }
     #[test]
     pub fn generate_header() {
         let author = Some("我".to_string());
+        let card_template = "测试模板".to_string();
+        let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
-        let notetype = "测试类型".to_string();
+        let separator = Some(',');
         let term = "高中".to_string();
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
-            author: author.clone(),
-            dynasty: dynasty.clone(),
-            notetype: notetype.clone(),
+            author,
+            card_template: card_template.clone(),
+            deck,
+            dynasty,
+            separator,
             term,
-            title: title.clone(),
+            title,
         };
-        let expect = vec![
-            format!("#separator:{}", SEPARATOR),
+        let mut expect = vec![
+            format!("#separator:{}", separator.unwrap()),
             "#html:true".to_string(),
-            format!("#notetype:{}", &notetype),
-            format!("#deck:{}", &title),
+            format!("#notetype:{}", &card_template),
+            "#deck:New::语文::我真的好帅".to_string(),
         ];
         let actual = info.generate_header();
         assert_eq!(expect, actual);
-        //no author
+        //no Option
         let info = Info {
             author: None,
-            ..info
-        };
-        let actual = info.generate_header();
-        assert_eq!(expect, actual);
-        //no author and dynasty
-        let info = Info {
             dynasty: None,
+            separator: None,
             ..info
         };
+        expect[0] = format!("#separator:{}", SEPARATOR);
         let actual = info.generate_header();
         assert_eq!(expect, actual);
-        //no dynasty
-        let info = Info {
+    }
+    #[test]
+    pub fn set_note_type() {
+        let author = Some("我".to_string());
+        let card_template = "测试模板".to_string();
+        let deck = "New::语文".to_string();
+        let dynasty = Some("现代".to_string());
+        let separator = Some('|');
+        let term = "高中".to_string();
+        let title = "我真的好帅".to_string();
+        //all
+        let mut info = Info {
             author,
+            card_template: card_template.clone(),
+            deck: deck.clone(),
             dynasty,
+            separator,
+            term,
+            title,
+        };
+        let note_type = "type".to_string();
+        let expect = ("New::语文::type".to_string(), "测试模板::type".to_string());
+        info.set_note_type(&note_type);
+        let actual = (info.deck, info.card_template);
+        assert_eq!(expect, actual);
+        //no Option
+        let mut info = Info {
+            author: None,
+            card_template,
+            deck,
+            dynasty: None,
+            separator: None,
             ..info
         };
-        let actual = info.generate_header();
+        info.set_note_type(&note_type);
+        let actual = (info.deck, info.card_template);
         assert_eq!(expect, actual);
     }
     #[test]
     pub fn title() {
         let author = Some("我".to_string());
+        let card_template = "测试模板".to_string();
+        let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
-        let notetype = "测试类型".to_string();
+        let separator = Some('|');
         let term = "高中".to_string();
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
-            author: author.clone(),
-            dynasty: dynasty.clone(),
-            notetype,
+            author,
+            card_template,
+            deck,
+            dynasty,
+            separator,
             term,
             title: title.clone(),
         };
         let expect = &title;
         let actual = info.title();
         assert_eq!(expect, actual);
-        //no author
+        //no Option
         let info = Info {
             author: None,
-            ..info
-        };
-        let actual = info.title();
-        assert_eq!(expect, actual);
-        //no author and dynasty
-        let info = Info {
             dynasty: None,
-            ..info
-        };
-        let actual = info.title();
-        assert_eq!(expect, actual);
-        //no dynasty
-        let info = Info {
-            author,
-            dynasty,
+            separator: None,
             ..info
         };
         let actual = info.title();
