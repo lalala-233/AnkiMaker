@@ -11,22 +11,20 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
+    /*
     let mut path = String::new();
-    //stdin().read_line(&mut path)?;
+    stdin().read_line(&mut path)?;
     let path = path.trim();
+    */
     let path = "test.toml".to_string();
     let content = fs::read_to_string(path)?;
 
-    let toml: anki_generate::Config = toml::from_str(&content)?;
-
-    println!("{:?}", toml);
-
-    for line in content.lines() {
-        println!("{}", line);
+    let mut toml: anki_generate::Config = toml::from_str(&content)?;
+    for i in toml.generate_with_line() {
+        println!("{i}");
     }
-
     // Read the origin.toml
-    // parse the header and the content   
+    // parse the header and the content
     // Write the result.txt
 
     Ok(())

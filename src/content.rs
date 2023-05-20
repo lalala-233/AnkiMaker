@@ -1,11 +1,11 @@
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct Content {
     paragraph: Vec<String>,
 }
 
-const PARSED_SYMBOL: &[char] = &['，', '。', '：', '！', '？'];
+const PARSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
 
 impl Content {
     pub fn parse_to_line(&self, separator: char) -> Vec<Vec<String>> {
