@@ -1,7 +1,7 @@
 use std::{
     error::Error,
     fs::{self, File},
-    io::{self, Write},
+    io::{self, Write, stdin},
 };
 
 fn main() {
@@ -11,12 +11,11 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    /*
     let mut path = String::new();
     stdin().read_line(&mut path)?;
     let path = path.trim();
-    */
-    let path = "test.toml".to_string();
+
+    // let path = "test.toml".to_string();
     let content = fs::read_to_string(path)?;
 
     let mut toml: anki_generate::Config = toml::from_str(&content)?;
