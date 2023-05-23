@@ -19,7 +19,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let content = fs::read_to_string(path)?;
 
     let mut toml: anki_generate::Config = toml::from_str(&content)?;
-    for i in toml.generate_with_line() {
+    for i in toml.generate_with_line()? {
         println!("{i}");
     }
     // Read the origin.toml

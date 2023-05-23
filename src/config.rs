@@ -10,7 +10,10 @@ pub struct Config {
 
 impl Config {
     const LINE_TYPE: &str = "挖空";
-    pub fn generate_with_line(&mut self) -> Vec<String> {
+    pub fn generate_with_line(&mut self) -> Result<Vec<String>, &'static str> {
+        if self.content.has_error_symbol() {
+            return Err("Content 中存在英文符号，会影响笔记生成的效果，请检查！");
+        }
         let (info, content) = (&mut self.info, &self.content);
         let mut result = Vec::new();
         //header
@@ -33,8 +36,7 @@ impl Config {
                 )
             })
         }));
-
-        result
+        Ok(result)
     }
 }
 
@@ -77,7 +79,29 @@ paragraph = [
         .into_iter()
         .map(|str| str.to_string())
         .collect();
-        let actual = config.generate_with_line();
-        assert_eq!(expect,actual);
+        let actual = config.generate_with_line().unwrap();
+        assert_eq!(expect, actual);
+
+        let mut config_err: Config = toml::from_str(
+            "
+[info]
+author = \"李斯\"
+deck = \"New::语文\"
+card_template = \"语文::古诗文\"
+term = \"高一下\"
+title = \"谏逐客书\"
+
+[content]
+paragraph = [
+    \"臣闻吏议逐客，窃以为过矣。昔缪公求士，\",
+    \"\",
+    \"臣闻地广者粟多,国大者人众，\",
+    \"夫物不产于秦，\"
+]
+",
+        )
+        .unwrap();
+        let actual = config_err.generate_with_line();
+        assert!(actual.is_err());
     }
 }
