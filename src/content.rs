@@ -33,11 +33,9 @@ impl Content {
                 //subtrait two ""
                 let mut paragraph = Vec::with_capacity(lines.len() - 2);
                 paragraph.extend(lines.windows(3).map(|window| {
-                    let mut middle = window[1].to_owned();
-                    let symbol = middle.pop().unwrap();
                     format!(
-                        "{}{separator}{middle}{separator}{symbol}{}",
-                        window[0], window[2]
+                        "{}{separator}{}{separator}{}",
+                        window[0], window[1], window[2]
                     )
                 }));
                 paragraph
@@ -66,11 +64,11 @@ mod public {
     pub fn parse_to_line() {
         let paragraph = vec!["某人：你好，我好，大家好！不是吗？".to_string()];
         let expect: Vec<Vec<String>> = vec![vec![
-            "|某人|：你好，",
-            "某人：|你好|，我好，",
-            "你好，|我好|，大家好！",
-            "我好，|大家好|！不是吗？",
-            "大家好！|不是吗|？",
+            "|某人：|你好，",
+            "某人：|你好，|我好，",
+            "你好，|我好，|大家好！",
+            "我好，|大家好！|不是吗？",
+            "大家好！|不是吗？|",
         ]]
         .into_iter()
         .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
