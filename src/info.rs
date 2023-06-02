@@ -7,7 +7,7 @@ pub struct Info {
     deck: String,
     dynasty: Option<String>,
     separator: Option<char>,
-    term: String,
+    term: Option<String>,
     title: String,
 }
 impl Info {
@@ -57,7 +57,7 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some('|');
-        let term = "高中".to_string();
+        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -90,7 +90,7 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some(',');
-        let term = "高中".to_string();
+        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -128,7 +128,7 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some('|');
-        let term = "高中".to_string();
+        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let mut info = Info {
@@ -165,7 +165,7 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some('|');
-        let term = "高中".to_string();
+        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -197,7 +197,7 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some(',');
-        let term = "高中".to_string();
+        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {

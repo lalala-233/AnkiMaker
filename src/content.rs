@@ -7,7 +7,7 @@ pub struct Content {
 
 impl Content {
     const ERROR_SYMBOL: &[char] = &[
-        '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.',
+        ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.',
     ];
     const PARSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
     pub fn has_error_symbol(&self) -> bool {
