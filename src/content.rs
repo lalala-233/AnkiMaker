@@ -10,13 +10,14 @@ impl Content {
         ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.',
     ];
     const PARSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
-    pub fn has_error_symbol(&self) -> bool {
+    pub fn has_error_symbol(&self) -> Option<char> {
         for string in &self.paragraph {
-            if string.find(Self::ERROR_SYMBOL).is_some() {
-                return true;
+            if let Some(index) = string.find(Self::ERROR_SYMBOL) {
+                let char = string.as_bytes()[index] as char;
+                return Some(char);
             };
         }
-        false
+        None
     }
     pub fn parse_to_line(&self, separator: char) -> Vec<Vec<String>> {
         // 匹配每个段落，分段、合成
@@ -52,12 +53,12 @@ mod public {
         let content = Content {
             paragraph: vec!["qwe".to_string(), "asd".to_string()],
         };
-        assert!(!content.has_error_symbol());
+        assert_eq!(None, content.has_error_symbol());
         for symbol in Content::ERROR_SYMBOL {
             let content = Content {
                 paragraph: vec!["qwe".to_string(), symbol.to_string(), "asd".to_string()],
             };
-            assert!(content.has_error_symbol());
+            assert_eq!(Some(*symbol), content.has_error_symbol());
         }
     }
     #[test]

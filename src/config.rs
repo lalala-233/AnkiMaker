@@ -10,9 +10,11 @@ pub struct Config {
 
 impl Config {
     const LINE_TYPE: &str = "挖空";
-    pub fn generate_with_line(&mut self) -> Result<Vec<String>, &'static str> {
-        if self.content.has_error_symbol() {
-            return Err("Content 中存在英文符号，会影响笔记生成的效果，请检查！");
+    pub fn generate_with_line(&mut self) -> Result<Vec<String>, String> {
+        if let Some(error_symbol) = self.content.has_error_symbol() {
+            return Err(format!(
+                "Content 中存在英文符号 “{error_symbol}”，会影响笔记生成的效果，请检查！"
+            ));
         }
         let (info, content) = (&mut self.info, &self.content);
         let mut result = Vec::new();
