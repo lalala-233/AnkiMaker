@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, env, error::Error, fs};
+use std::{env, error::Error, fs};
 
 fn main() {
     run().unwrap_or_else(|error| {
@@ -7,26 +7,21 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn Error>> {
-    let lines = get_lines()?;
-    println!("{lines}");
-    Ok(())
-}
-
-fn get_lines() -> Result<String, Box<dyn Error>> {
-    match env::args().len().cmp(&2) {
-        Ordering::Less => return Err("参数过少！".into()),
-        Ordering::Greater => return Err("参数过多！".into()),
-        _ => (),
-    };
     let mut args = env::args();
+    if args.len() == 1 {
+        return Err("参数过少！".into());
+    }
     args.next();
-    let path = args.next().unwrap();
-    let content = fs::read_to_string(path)?;
-    let mut toml: anki_generate::Config = toml::from_str(&content)?;
-    let lines = toml
-        .generate_with_line()?
-        .into_iter()
-        .map(|line| format!("{line}\n"))
-        .collect();
-    Ok(lines)
+    for mut path in args {
+        let content = fs::read_to_string(path.clone())?;
+        let mut toml: anki_generate::Config = toml::from_str(&content)?;
+        let lines: String = toml
+            .generate_with_line()?
+            .into_iter()
+            .map(|line| format!("{line}\n"))
+            .collect();
+        path.push_str(".txt");
+        fs::write(path, lines)?;
+    }
+    Ok(())
 }

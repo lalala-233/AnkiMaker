@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "anki_generate"
-version = "0.2.1"
+version = "0.3.1"
 dependencies = [
  "diff",
  "serde",
