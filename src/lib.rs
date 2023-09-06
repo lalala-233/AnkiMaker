@@ -1,6 +1,7 @@
+pub mod app;
 pub mod config;
-pub use config::Config;
 mod content;
-pub use content::Content;
 mod info;
+pub use config::Config;
+pub use content::Content;
 pub use info::Info;

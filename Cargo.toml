@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 eframe = { version = "0.22", features = [
-    "accesskit",   # Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
-    "persistence", # Enable restoring app state when restarting the app.
+    "accesskit",     # (Default) Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
+    "default_fonts", # (Default) Embed the default egui fonts.
+    "glow",          # (Default) Use the glow rendering backend. Alternative: "wgpu".
+    "persistence",   # Enable restoring app state when restarting the app.
 ] }
 diff = "0.1"
 serde = { version = "1.0", features = ["derive"] }

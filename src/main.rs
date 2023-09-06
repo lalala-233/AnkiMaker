@@ -1,5 +1,7 @@
 use std::{env, error::Error, fs};
 
+use anki_maker::app::App;
+
 fn main() {
     run().unwrap_or_else(|error| {
         eprintln!("错误！错误信息：{}", error);
@@ -14,7 +16,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     args.next();
     for mut path in args {
         let content = fs::read_to_string(path.clone())?;
-        let mut toml: anki_generate::Config = toml::from_str(&content)?;
+        let mut toml: anki_maker::Config = toml::from_str(&content)?;
         let lines: String = toml
             .generate_with_line()?
             .into_iter()
@@ -24,4 +26,10 @@ fn run() -> Result<(), Box<dyn Error>> {
         fs::write(path, lines)?;
     }
     Ok(())
+}
+
+fn app() -> eframe::Result<()> {
+    let app_name = "Anki Maker";
+    let app_options = eframe::NativeOptions::default();
+    eframe::run_native(app_name, app_options, Box::new(|cc| Box::new(App::new(cc))))
 }
