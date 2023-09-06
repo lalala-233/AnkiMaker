@@ -20,7 +20,7 @@ impl Config {
         let mut result = Vec::new();
         //header
         info.set_note_type(Self::LINE_TYPE);
-        result.extend(info.generate_header().into_iter());
+        result.extend(info.generate_header());
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = info.separator();

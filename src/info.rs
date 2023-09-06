@@ -52,24 +52,24 @@ mod public {
     use super::*;
     #[test]
     pub fn generate_author_info() {
-        let author = Some("我".to_string());
+        let author = "我".to_string();
         let card_template = "测试模板".to_string();
         let deck = "New::语文".to_string();
-        let dynasty = Some("现代".to_string());
+        let dynasty = "现代".to_string();
         let separator = Some('|');
         let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
-            author: author.clone(),
+            author: Some(author.clone()),
             card_template,
             deck,
-            dynasty: dynasty.clone(),
+            dynasty: Some(dynasty.clone()),
             separator,
             term,
             title,
         };
-        let expect = format!("（{}）{}", dynasty.unwrap(), author.unwrap());
+        let expect = format!("（{}）{}", dynasty, author);
         let actual = info.generate_author_info();
         assert_eq!(expect, actual);
         //no Option
@@ -89,7 +89,7 @@ mod public {
         let card_template = "测试模板".to_string();
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
-        let separator = Some(',');
+        let separator = ',';
         let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
@@ -98,12 +98,12 @@ mod public {
             card_template: card_template.clone(),
             deck,
             dynasty,
-            separator,
+            separator: Some(separator),
             term,
             title,
         };
         let mut expect = vec![
-            format!("#separator:{}", separator.unwrap()),
+            format!("#separator:{}", separator),
             "#html:true".to_string(),
             format!("#notetype:{}", &card_template),
             "#deck:New::语文::我真的好帅".to_string(),
@@ -196,7 +196,7 @@ mod public {
         let card_template = "测试模板".to_string();
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
-        let separator = Some(',');
+        let separator = ',';
         let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
@@ -205,11 +205,11 @@ mod public {
             card_template,
             deck,
             dynasty,
-            separator,
+            separator: Some(separator),
             term,
             title,
         };
-        let expect = separator.unwrap();
+        let expect = separator;
         let actual = info.separator();
         assert_eq!(expect, actual);
         //no Option
