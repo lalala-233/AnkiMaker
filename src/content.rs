@@ -63,14 +63,20 @@ mod public {
     }
     #[test]
     pub fn parse_to_line() {
-        let paragraph = vec!["某人：你好，我好，大家好！不是吗？".to_string()];
-        let expect: Vec<Vec<String>> = vec![vec![
-            "|某人：|你好，",
-            "某人：|你好，|我好，",
-            "你好，|我好，|大家好！",
-            "我好，|大家好！|不是吗？",
-            "大家好！|不是吗？|",
-        ]]
+        let paragraph = vec![
+            "某人：你好，我好，大家好！不是吗？".to_string(),
+            "哦，是的，我不是 Homo！".to_string(),
+        ];
+        let expect: Vec<Vec<String>> = vec![
+            vec![
+                "|某人：|你好，",
+                "某人：|你好，|我好，",
+                "你好，|我好，|大家好！",
+                "我好，|大家好！|不是吗？",
+                "大家好！|不是吗？|",
+            ],
+            vec!["|哦，|是的，", "哦，|是的，|我不是 Homo！","是的，|我不是 Homo！|"],
+        ]
         .into_iter()
         .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
         .collect();
