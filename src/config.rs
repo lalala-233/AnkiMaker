@@ -83,7 +83,7 @@ paragraph = [
         .collect();
         let actual = config.generate_with_line().unwrap();
         assert_eq!(expect, actual);
-
+        // 存在英文逗号
         let mut config_err: Config = toml::from_str(
             "
 [info]
