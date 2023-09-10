@@ -1,47 +1,38 @@
+use crate::text::Text;
 use serde::Deserialize;
-
 #[derive(Deserialize)]
 pub struct Content {
     paragraph: Vec<String>,
 }
 
 impl Content {
-    const ERROR_SYMBOL: &[char] = &[
-        ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.',
-    ];
-    const PARSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
-    pub fn has_error_symbol(&self) -> Option<char> {
-        for string in &self.paragraph {
-            if let Some(index) = string.find(Self::ERROR_SYMBOL) {
-                let char = string.as_bytes()[index] as char;
-                return Some(char);
-            };
-        }
-        None
-    }
-    pub fn parse_to_line(&self, separator: char) -> Vec<Vec<String>> {
+    pub fn parse_to_line(&self, separator: char) -> Result<Vec<Vec<String>>, String> {
         // 匹配每个段落，分段、合成
-        self.paragraph
-            .iter()
+        let texts: Vec<Vec<String>> = self
+            .generate_texts()?
+            .into_iter()
+            .map(|text| text.into_vec_string())
             .map(|paragraph| {
-                let mut lines = vec!["".to_string()];
-                lines.extend(
-                    paragraph
-                        .split_inclusive(Self::PARSED_SYMBOL)
-                        .map(String::from),
-                );
-                lines.push("".to_string());
-                //subtrait two ""
-                let mut paragraph = Vec::with_capacity(lines.len() - 2);
-                paragraph.extend(lines.windows(3).map(|window| {
-                    format!(
-                        "{}{separator}{}{separator}{}",
-                        window[0], window[1], window[2]
-                    )
-                }));
                 paragraph
+                    .windows(3)
+                    .map(|window| {
+                        let (left, middle, right) = (&window[0], &window[1], &window[2]);
+                        format!("{left}{separator}{middle}{separator}{right}")
+                    })
+                    .collect()
             })
-            .collect()
+            .collect();
+        Ok(texts)
+    }
+}
+impl Content {
+    //private
+    fn generate_texts(&self) -> Result<Vec<Text>, String> {
+        let mut texts = Vec::with_capacity(self.paragraph.len());
+        for text in &self.paragraph {
+            texts.push(Text::from(text)?)
+        }
+        Ok(texts)
     }
 }
 
@@ -49,23 +40,10 @@ impl Content {
 mod public {
     use super::*;
     #[test]
-    pub fn has_error_symbol() {
-        let content = Content {
-            paragraph: vec!["qwe".to_string(), "asd".to_string()],
-        };
-        assert_eq!(None, content.has_error_symbol());
-        for symbol in Content::ERROR_SYMBOL {
-            let content = Content {
-                paragraph: vec!["qwe".to_string(), symbol.to_string(), "asd".to_string()],
-            };
-            assert_eq!(Some(*symbol), content.has_error_symbol());
-        }
-    }
-    #[test]
     pub fn parse_to_line() {
         let paragraph = vec![
             "某人：你好，我好，大家好！不是吗？".to_string(),
-            "哦，是的，我不是 Homo！".to_string(),
+            "哦，是的。我不是Homo！".to_string(),
         ];
         let expect: Vec<Vec<String>> = vec![
             vec![
@@ -75,14 +53,50 @@ mod public {
                 "我好，|大家好！|不是吗？",
                 "大家好！|不是吗？|",
             ],
-            vec!["|哦，|是的，", "哦，|是的，|我不是 Homo！","是的，|我不是 Homo！|"],
+            vec![
+                "|哦，|是的。",
+                "哦，|是的。|我不是Homo！",
+                "是的。|我不是Homo！|",
+            ],
         ]
         .into_iter()
         .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
         .collect();
-
-        let content = Content { paragraph };
-        let actual = content.parse_to_line('|');
+        let actual = Content { paragraph }.parse_to_line('|').unwrap();
         assert_eq!(expect, actual);
+        // 存在英文感叹号、英文冒号、英文逗号、英文问号
+        let paragraph = vec![
+            "哦，是的。我不是Homo!".to_string(),
+            "某人:你好,我好，大家好！不是吗?".to_string(),
+        ];
+        let expect = Err("!".to_string());
+        let actual = Content { paragraph }.parse_to_line('|');
+        assert_eq!(expect, actual);
+    }
+}
+#[cfg(test)]
+mod private {
+    use super::Text;
+    use crate::Content;
+    #[test]
+    fn generate_texts() {
+        let paragraph = vec![
+            "某人：你好，我好，大家好！不是吗？".to_string(),
+            "哦，是的。我不是Homo！".to_string(),
+        ];
+        let expect = vec![
+            Text::from(&paragraph[0]).unwrap(),
+            Text::from(&paragraph[1]).unwrap(),
+        ];
+        let actual = Content { paragraph }.generate_texts().unwrap();
+        assert_eq!(expect, actual);
+        // 错误符号：英文逗号、英文逗号、英文句号
+        let paragraph = vec![
+            "哦，是的.我不是Homo！".to_string(),
+            "某人：你好,我好，大家好！不是吗？".to_string(),
+        ];
+        let expect = Err(".".to_string());
+        let actual = Content { paragraph }.generate_texts();
+        assert_eq!(expect, actual)
     }
 }

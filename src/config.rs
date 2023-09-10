@@ -1,6 +1,5 @@
-use serde::Deserialize;
-
 use crate::{Content, Info};
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -11,11 +10,6 @@ pub struct Config {
 impl Config {
     const LINE_TYPE: &str = "挖空";
     pub fn generate_with_line(&mut self) -> Result<Vec<String>, String> {
-        if let Some(error_symbol) = self.content.has_error_symbol() {
-            return Err(format!(
-                "Content 中存在英文符号 “{error_symbol}”，会影响笔记生成的效果，请检查！"
-            ));
-        }
         let (info, content) = (&mut self.info, &self.content);
         let mut result = Vec::new();
         //header
@@ -24,7 +18,14 @@ impl Config {
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = info.separator();
-        let paragraphs = content.parse_to_line(separator);
+        let paragraphs = match content.parse_to_line(separator) {
+            Ok(paragraphs) => paragraphs,
+            Err(error_symbol) => {
+                return Err(format!(
+                    "Content 中存在英文符号「{error_symbol}」，会影响笔记生成的效果，请检查！"
+                ))
+            }
+        };
 
         let mut sum_para = 0;
         let mut sum_line = 0;
@@ -83,7 +84,7 @@ paragraph = [
         .collect();
         let actual = config.generate_with_line().unwrap();
         assert_eq!(expect, actual);
-        // 存在英文逗号
+        // 存在英文句号、英文逗号
         let mut config_err: Config = toml::from_str(
             "
 [info]
@@ -97,13 +98,14 @@ title = \"谏逐客书\"
 paragraph = [
     \"臣闻吏议逐客，窃以为过矣。昔缪公求士，\",
     \"\",
-    \"臣闻地广者粟多,国大者人众，\",
-    \"夫物不产于秦，\"
+    \"臣闻地广者粟多，国大者人众.\",
+    \"夫物不产于秦,\"
 ]
 ",
         )
         .unwrap();
+        let expect = Err("Content 中存在英文符号「.」，会影响笔记生成的效果，请检查！".to_string());
         let actual = config_err.generate_with_line();
-        assert!(actual.is_err());
+        assert_eq!(expect, actual)
     }
 }

@@ -1,6 +1,5 @@
-use std::{env, error::Error, fs};
-
 use anki_maker::app::App;
+use std::{env, error::Error, fs};
 
 fn main() {
     run().unwrap_or_else(|error| {
