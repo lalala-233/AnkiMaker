@@ -7,9 +7,17 @@ pub struct Text {
 impl Text {
     pub fn push(&mut self, symbol: Symbol) {
         let last = self.text.last_mut();
-        match (last, &symbol) {
-            (Some(Symbol::Symbol(last)), Symbol::Symbol(pass)) => last.push_str(pass),
-            (Some(Symbol::Text(last)), Symbol::Text(text)) => last.push_str(text),
+        match last {
+            Some(Symbol::Symbol(last)) => match symbol {
+                Symbol::Symbol(symbol) => last.push_str(&symbol),
+                Symbol::RightQuotationMark => last.push(Symbol::RIGHT_QUOTATION_MARK),
+                Symbol::Text(_) => self.text.push(symbol),
+            },
+            Some(Symbol::Text(last)) => match symbol {
+                Symbol::Symbol(_) => self.text.push(symbol),
+                Symbol::RightQuotationMark => last.push(Symbol::RIGHT_QUOTATION_MARK),
+                Symbol::Text(text) => last.push_str(&text),
+            },
             _ => self.text.push(symbol),
         }
     }
@@ -26,7 +34,7 @@ impl Text {
 }
 impl From<Text> for Vec<String> {
     fn from(val: Text) -> Self {
-        let mut result = Vec::with_capacity(val.text.len() / 2 + 1);
+        let mut result = Vec::with_capacity(val.text.len() / 2 + 3);
         let mut iter = val.text.iter();
         result.push("".to_string());
         match iter.next() {
@@ -38,12 +46,13 @@ impl From<Text> for Vec<String> {
                     .push_str(&iter.next().unwrap().to_string());
             }
             Some(Symbol::Text(text)) => result.push(text.to_string()),
-            None => (),
+            _ => (), //RightQuotationMark are not possible in Text
         }
         for symbol in iter {
             match symbol {
                 Symbol::Text(text) => result.push(text.to_string()),
                 Symbol::Symbol(symbol) => result.last_mut().unwrap().push_str(symbol),
+                _ => (),
             }
         }
         result.push("".to_string());
@@ -57,9 +66,10 @@ mod public {
     pub fn from() {
         let tests = (
             "「你爱我，我爱你，蜜雪冰城甜蜜蜜！」".to_string(),
+            "「yyds」是一句网络用语。".to_string(),
             "你爱我,我爱你，蜜雪冰城甜蜜蜜!".to_string(),
         );
-        let symbols = vec![
+        let symbols1 = vec![
             Symbol::Text("「你爱我".to_string()),
             Symbol::Symbol("，".to_string()),
             Symbol::Text("我爱你".to_string()),
@@ -67,8 +77,20 @@ mod public {
             Symbol::Text("蜜雪冰城甜蜜蜜".to_string()),
             Symbol::Symbol("！」".to_string()),
         ];
-        let expect = (Text { text: symbols }, Err(",".to_string()));
-        let actual = (Text::from(&tests.0).unwrap(), Text::from(&tests.1));
+        let symbols2 = vec![
+            Symbol::Text("「yyds」是一句网络用语".to_string()),
+            Symbol::Symbol("。".to_string()),
+        ];
+        let expect = (
+            Text { text: symbols1 },
+            Text { text: symbols2 },
+            Err(",".to_string()),
+        );
+        let actual = (
+            Text::from(&tests.0).unwrap(),
+            Text::from(&tests.1).unwrap(),
+            Text::from(&tests.2),
+        );
         assert_eq!(expect, actual)
     }
     #[test]
@@ -105,19 +127,27 @@ mod public {
         let symbols = (
             Symbol::Symbol("，".to_string()),
             Symbol::Text("测试".to_string()),
-            Symbol::Text("测试测试".to_string()),
-            Symbol::Symbol("，，，".to_string()),
+            Symbol::RightQuotationMark,
+            Symbol::Text("测试".to_string()),
+            Symbol::RightQuotationMark,
+            Symbol::Symbol("，，".to_string()),
+            Symbol::RightQuotationMark,
         );
         let expect = Text {
-            text: vec![symbols.0.clone(), symbols.2, symbols.3],
+            text: vec![
+                Symbol::Symbol("，".to_string()),
+                Symbol::Text("测试」测试」".to_string()),
+                Symbol::Symbol("，，」".to_string()),
+            ],
         };
         let mut actual = Text::default();
-        actual.push(symbols.0.clone());
-        actual.push(symbols.1.clone());
-        actual.push(symbols.1);
-        actual.push(symbols.0.clone());
-        actual.push(symbols.0.clone());
         actual.push(symbols.0);
+        actual.push(symbols.1);
+        actual.push(symbols.2);
+        actual.push(symbols.3);
+        actual.push(symbols.4);
+        actual.push(symbols.5);
+        actual.push(symbols.6);
         assert_eq!(expect, actual);
     }
 }

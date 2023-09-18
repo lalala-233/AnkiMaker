@@ -2,21 +2,27 @@
 pub enum Symbol {
     Symbol(String),
     Text(String),
+    RightQuotationMark,
 }
 impl Symbol {
     const ERROR_SYMBOL: &[char] = &[
-        ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.',
+        ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.', '"', '“', '”',
+        '‘', '’',
     ];
-    const PASSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？', '」'];
+    const PASSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
+    pub const RIGHT_QUOTATION_MARK: char = '」';
     pub fn from(symbol: char) -> Result<Symbol, String> {
         let symbol = symbol.to_string();
         if symbol.contains(Self::ERROR_SYMBOL) {
-            Err(symbol)
-        } else if symbol.contains(Self::PASSED_SYMBOL) {
-            Ok(Self::Symbol(symbol))
-        } else {
-            Ok(Self::Text(symbol))
+            return Err(symbol);
         }
+        if symbol.contains(Self::PASSED_SYMBOL) {
+            return Ok(Self::Symbol(symbol));
+        }
+        if symbol.contains(Self::RIGHT_QUOTATION_MARK) {
+            return Ok(Self::RightQuotationMark);
+        }
+        Ok(Self::Text(symbol.to_string()))
     }
 }
 impl ToString for Symbol {
@@ -24,6 +30,7 @@ impl ToString for Symbol {
         match self {
             Symbol::Symbol(symbol) => symbol.to_string(),
             Symbol::Text(text) => text.to_string(),
+            Symbol::RightQuotationMark => Self::RIGHT_QUOTATION_MARK.to_string(),
         }
     }
 }
@@ -53,7 +60,6 @@ mod public {
         test_symbol('，');
         test_symbol('。');
         test_symbol('！');
-        test_symbol('」');
         test_text('1');
         test_text('0');
         test_text('Q');
@@ -68,5 +74,8 @@ mod public {
         test_err('(');
         test_err(':');
         test_err(';');
+        let actual = Symbol::from('」').unwrap();
+        let expect = Symbol::RightQuotationMark;
+        assert_eq!(expect, actual)
     }
 }

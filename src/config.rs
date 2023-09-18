@@ -3,8 +3,8 @@ use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct Config {
-    pub info: Info,
-    pub content: Content,
+    info: Info,
+    content: Content,
 }
 
 impl Config {

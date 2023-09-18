@@ -16,13 +16,17 @@ fn run() -> Result<(), Box<dyn Error>> {
     for mut path in args {
         let content = fs::read_to_string(path.clone())?;
         let mut toml: anki_maker::Config = toml::from_str(&content)?;
-        let lines: String = toml
-            .generate_with_line()?
-            .into_iter()
-            .map(|line| format!("{line}\n"))
-            .collect();
-        path.push_str(".txt");
-        fs::write(path, lines)?;
+        match toml.generate_with_line() {
+            Ok(lines) => {
+                let lines: String = lines.into_iter().map(|line| format!("{line}\n")).collect();
+                path.push_str(".txt");
+                fs::write(path, lines)?;
+            }
+            Err(error_info) => {
+                let error_info = format!("Error: In {path}.\nDetails:{error_info}");
+                return Err(error_info.into());
+            }
+        }
     }
     Ok(())
 }
