@@ -1,21 +1,23 @@
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub enum Symbol {
+pub enum Character {
     Symbol(String),
     Text(String),
     RightQuotationMark,
 }
-impl Symbol {
-    const ERROR_SYMBOL: &[char] = &[
-        ' ', '!', '(', ')', '-', '_', ':', ';', '\'', '\"', '<', '>', '?', ',', '.', '"', '“', '”',
-        '‘', '’',
-    ];
+impl Character {
     const PASSED_SYMBOL: &[char] = &['！', '：', '；', '，', '。', '？'];
     pub const RIGHT_QUOTATION_MARK: char = '」';
-    pub fn from(symbol: char) -> Result<Symbol, String> {
-        let symbol = symbol.to_string();
-        if symbol.contains(Self::ERROR_SYMBOL) {
-            return Err(symbol);
+    pub fn from(symbol: char) -> Result<Character, String> {
+        let is_error_char = |symbol: char| {
+            symbol.is_ascii_graphic()
+                || symbol.is_whitespace()
+                || matches!(symbol, '‘' | '’' | '“' | '”')
+        };
+
+        if is_error_char(symbol) {
+            return Err(symbol.to_string());
         }
+        let symbol = symbol.to_string();
         if symbol.contains(Self::PASSED_SYMBOL) {
             return Ok(Self::Symbol(symbol));
         }
@@ -25,33 +27,33 @@ impl Symbol {
         Ok(Self::Text(symbol.to_string()))
     }
 }
-impl ToString for Symbol {
+impl ToString for Character {
     fn to_string(&self) -> String {
         match self {
-            Symbol::Symbol(symbol) => symbol.to_string(),
-            Symbol::Text(text) => text.to_string(),
-            Symbol::RightQuotationMark => Self::RIGHT_QUOTATION_MARK.to_string(),
+            Character::Symbol(symbol) => symbol.to_string(),
+            Character::Text(text) => text.to_string(),
+            Character::RightQuotationMark => Self::RIGHT_QUOTATION_MARK.to_string(),
         }
     }
 }
 #[cfg(test)]
 mod public {
-    use crate::symbol::Symbol;
+    use crate::character::Character;
 
     #[test]
     pub fn from() {
         let test_symbol = |char| {
-            let actual = Symbol::from(char).unwrap();
-            let expect = Symbol::Symbol(char.to_string());
+            let actual = Character::from(char).unwrap();
+            let expect = Character::Symbol(char.to_string());
             assert_eq!(expect, actual)
         };
         let test_text = |char| {
-            let actual = Symbol::from(char).unwrap();
-            let expect = Symbol::Text(char.to_string());
+            let actual = Character::from(char).unwrap();
+            let expect = Character::Text(char.to_string());
             assert_eq!(expect, actual)
         };
         let test_err = |char| {
-            let actual = Symbol::from(char);
+            let actual = Character::from(char);
             let expect = Err(char.to_string());
             assert_eq!(expect, actual)
         };
@@ -60,10 +62,6 @@ mod public {
         test_symbol('，');
         test_symbol('。');
         test_symbol('！');
-        test_text('1');
-        test_text('0');
-        test_text('Q');
-        test_text('a');
         test_text('啊');
         test_text('我');
         test_text('平');
@@ -72,10 +70,12 @@ mod public {
         test_err(',');
         test_err('!');
         test_err('(');
+        test_err('@');
+        test_err('8');
         test_err(':');
         test_err(';');
-        let actual = Symbol::from('」').unwrap();
-        let expect = Symbol::RightQuotationMark;
+        let actual = Character::from('」').unwrap();
+        let expect = Character::RightQuotationMark;
         assert_eq!(expect, actual)
     }
 }

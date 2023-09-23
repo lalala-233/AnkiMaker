@@ -1,22 +1,22 @@
-use crate::symbol::Symbol;
+use crate::character::Character;
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Text {
-    text: Vec<Symbol>,
+    text: Vec<Character>,
 }
 impl Text {
-    pub fn push(&mut self, symbol: Symbol) {
+    pub fn push(&mut self, symbol: Character) {
         let last = self.text.last_mut();
         match last {
-            Some(Symbol::Symbol(last)) => match symbol {
-                Symbol::Symbol(symbol) => last.push_str(&symbol),
-                Symbol::RightQuotationMark => last.push(Symbol::RIGHT_QUOTATION_MARK),
-                Symbol::Text(_) => self.text.push(symbol),
+            Some(Character::Symbol(last)) => match symbol {
+                Character::Symbol(symbol) => last.push_str(&symbol),
+                Character::RightQuotationMark => last.push(Character::RIGHT_QUOTATION_MARK),
+                Character::Text(_) => self.text.push(symbol),
             },
-            Some(Symbol::Text(last)) => match symbol {
-                Symbol::Symbol(_) => self.text.push(symbol),
-                Symbol::RightQuotationMark => last.push(Symbol::RIGHT_QUOTATION_MARK),
-                Symbol::Text(text) => last.push_str(&text),
+            Some(Character::Text(last)) => match symbol {
+                Character::Symbol(_) => self.text.push(symbol),
+                Character::RightQuotationMark => last.push(Character::RIGHT_QUOTATION_MARK),
+                Character::Text(text) => last.push_str(&text),
             },
             _ => self.text.push(symbol),
         }
@@ -24,7 +24,7 @@ impl Text {
     pub fn from(text: &str) -> Result<Text, String> {
         let mut result = Text::default();
         for symbol in text.chars() {
-            result.push(Symbol::from(symbol)?);
+            result.push(Character::from(symbol)?);
         }
         Ok(result)
     }
@@ -38,20 +38,20 @@ impl From<Text> for Vec<String> {
         let mut iter = val.text.iter();
         result.push("".to_string());
         match iter.next() {
-            Some(Symbol::Symbol(symbol)) => {
+            Some(Character::Symbol(symbol)) => {
                 result.push(symbol.to_string());
                 result
                     .last_mut()
                     .unwrap()
                     .push_str(&iter.next().unwrap().to_string());
             }
-            Some(Symbol::Text(text)) => result.push(text.to_string()),
+            Some(Character::Text(text)) => result.push(text.to_string()),
             _ => (), //RightQuotationMark are not possible in Text
         }
         for symbol in iter {
             match symbol {
-                Symbol::Text(text) => result.push(text.to_string()),
-                Symbol::Symbol(symbol) => result.last_mut().unwrap().push_str(symbol),
+                Character::Text(text) => result.push(text.to_string()),
+                Character::Symbol(symbol) => result.last_mut().unwrap().push_str(symbol),
                 _ => (),
             }
         }
@@ -61,25 +61,25 @@ impl From<Text> for Vec<String> {
 }
 #[cfg(test)]
 mod public {
-    use crate::text::{Symbol, Text};
+    use crate::text::{Character, Text};
     #[test]
     pub fn from() {
         let tests = (
             "「你爱我，我爱你，蜜雪冰城甜蜜蜜！」".to_string(),
-            "「yyds」是一句网络用语。".to_string(),
+            "「鸡汤来咯」是一句网络用语。".to_string(),
             "你爱我,我爱你，蜜雪冰城甜蜜蜜!".to_string(),
         );
         let symbols1 = vec![
-            Symbol::Text("「你爱我".to_string()),
-            Symbol::Symbol("，".to_string()),
-            Symbol::Text("我爱你".to_string()),
-            Symbol::Symbol("，".to_string()),
-            Symbol::Text("蜜雪冰城甜蜜蜜".to_string()),
-            Symbol::Symbol("！」".to_string()),
+            Character::Text("「你爱我".to_string()),
+            Character::Symbol("，".to_string()),
+            Character::Text("我爱你".to_string()),
+            Character::Symbol("，".to_string()),
+            Character::Text("蜜雪冰城甜蜜蜜".to_string()),
+            Character::Symbol("！」".to_string()),
         ];
         let symbols2 = vec![
-            Symbol::Text("「yyds」是一句网络用语".to_string()),
-            Symbol::Symbol("。".to_string()),
+            Character::Text("「鸡汤来咯」是一句网络用语".to_string()),
+            Character::Symbol("。".to_string()),
         ];
         let expect = (
             Text { text: symbols1 },
@@ -125,19 +125,19 @@ mod public {
     #[test]
     pub fn push() {
         let symbols = (
-            Symbol::Symbol("，".to_string()),
-            Symbol::Text("测试".to_string()),
-            Symbol::RightQuotationMark,
-            Symbol::Text("测试".to_string()),
-            Symbol::RightQuotationMark,
-            Symbol::Symbol("，，".to_string()),
-            Symbol::RightQuotationMark,
+            Character::Symbol("，".to_string()),
+            Character::Text("测试".to_string()),
+            Character::RightQuotationMark,
+            Character::Text("测试".to_string()),
+            Character::RightQuotationMark,
+            Character::Symbol("，，".to_string()),
+            Character::RightQuotationMark,
         );
         let expect = Text {
             text: vec![
-                Symbol::Symbol("，".to_string()),
-                Symbol::Text("测试」测试」".to_string()),
-                Symbol::Symbol("，，」".to_string()),
+                Character::Symbol("，".to_string()),
+                Character::Text("测试」测试」".to_string()),
+                Character::Symbol("，，」".to_string()),
             ],
         };
         let mut actual = Text::default();
