@@ -7,7 +7,6 @@ pub struct Info {
     deck: String,
     dynasty: Option<String>,
     separator: Option<char>,
-    term: Option<String>,
     title: String,
 }
 impl Info {
@@ -57,7 +56,6 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = "现代".to_string();
         let separator = Some('|');
-        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -66,7 +64,6 @@ mod public {
             deck,
             dynasty: Some(dynasty.clone()),
             separator,
-            term,
             title,
         };
         let expect = format!("（{}）{}", dynasty, author);
@@ -90,7 +87,6 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = ',';
-        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -99,7 +95,6 @@ mod public {
             deck,
             dynasty,
             separator: Some(separator),
-            term,
             title,
         };
         let mut expect = vec![
@@ -128,7 +123,6 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some('|');
-        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let mut info = Info {
@@ -137,7 +131,6 @@ mod public {
             deck: deck.clone(),
             dynasty,
             separator,
-            term,
             title,
         };
         let note_type = "type".to_string();
@@ -165,7 +158,6 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = Some('|');
-        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -174,7 +166,6 @@ mod public {
             deck,
             dynasty,
             separator,
-            term,
             title: title.clone(),
         };
         let expect = &title;
@@ -197,7 +188,6 @@ mod public {
         let deck = "New::语文".to_string();
         let dynasty = Some("现代".to_string());
         let separator = ',';
-        let term = Some("高中".to_string());
         let title = "我真的好帅".to_string();
         //all
         let info = Info {
@@ -206,7 +196,6 @@ mod public {
             deck,
             dynasty,
             separator: Some(separator),
-            term,
             title,
         };
         let expect = separator;

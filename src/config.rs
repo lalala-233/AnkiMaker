@@ -54,7 +54,6 @@ mod public {
 author = \"李斯\"
 deck = \"New::语文\"
 card_template = \"语文::古诗文\"
-term = \"高一下\"
 title = \"谏逐客书\"
 
 [content]
@@ -91,7 +90,6 @@ paragraph = [
 author = \"李斯\"
 deck = \"New::语文\"
 card_template = \"语文::古诗文\"
-term = \"高一下\"
 title = \"谏逐客书\"
 
 [content]
