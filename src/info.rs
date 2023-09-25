@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Info {
     author: Option<String>,
     card_template: String,
@@ -8,6 +8,20 @@ pub struct Info {
     dynasty: Option<String>,
     separator: Option<char>,
     title: String,
+}
+impl Default for Info {
+    fn default() -> Self {
+        let optional = Some("".to_string());
+        let str = "".to_string();
+        Self {
+            author: optional.clone(),
+            card_template: str.clone(),
+            deck: str.clone(),
+            dynasty: optional,
+            separator: None,
+            title: str.clone(),
+        }
+    }
 }
 impl Info {
     const DEFAULT_SEPARATOR: char = '|';

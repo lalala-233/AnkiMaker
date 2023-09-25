@@ -1,6 +1,6 @@
 use crate::text::Text;
-use serde::Deserialize;
-#[derive(Deserialize)]
+use serde::{Deserialize, Serialize};
+#[derive(Deserialize, Serialize, Default)]
 pub struct Content {
     paragraph: Vec<String>,
 }
@@ -53,11 +53,7 @@ mod public {
                 "我好，|大家好！|不是吗？",
                 "大家好！|不是吗？|",
             ],
-            vec![
-                "|哦，|是的。",
-                "哦，|是的。|我不是！",
-                "是的。|我不是！|",
-            ],
+            vec!["|哦，|是的。", "哦，|是的。|我不是！", "是的。|我不是！|"],
         ]
         .into_iter()
         .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
