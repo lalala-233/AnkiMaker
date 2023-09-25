@@ -44,10 +44,6 @@ impl Info {
         header.push(format!("#deck:{}::{}", self.deck, self.title));
         header
     }
-    pub fn set_note_type(&mut self, note_type: &str) {
-        self.deck = format!("{}::{}", self.deck, note_type);
-        self.card_template = format!("{}::{}", self.card_template, note_type);
-    }
     pub fn separator(&self) -> char {
         if let Some(separator) = self.separator {
             separator
@@ -128,41 +124,6 @@ mod public {
         };
         expect[0] = format!("#separator:{}", Info::DEFAULT_SEPARATOR);
         let actual = info.generate_header();
-        assert_eq!(expect, actual);
-    }
-    #[test]
-    pub fn set_note_type() {
-        let author = Some("我".to_string());
-        let card_template = "测试模板".to_string();
-        let deck = "New::语文".to_string();
-        let dynasty = Some("现代".to_string());
-        let separator = Some('|');
-        let title = "我真的好帅".to_string();
-        //all
-        let mut info = Info {
-            author,
-            card_template: card_template.clone(),
-            deck: deck.clone(),
-            dynasty,
-            separator,
-            title,
-        };
-        let note_type = "type".to_string();
-        let expect = ("New::语文::type".to_string(), "测试模板::type".to_string());
-        info.set_note_type(&note_type);
-        let actual = (info.deck, info.card_template);
-        assert_eq!(expect, actual);
-        //no Option
-        let mut info = Info {
-            author: None,
-            card_template,
-            deck,
-            dynasty: None,
-            separator: None,
-            ..info
-        };
-        info.set_note_type(&note_type);
-        let actual = (info.deck, info.card_template);
         assert_eq!(expect, actual);
     }
     #[test]

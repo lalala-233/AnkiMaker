@@ -8,12 +8,10 @@ pub struct Config {
 }
 
 impl Config {
-    const LINE_TYPE: &str = "挖空";
     pub fn generate_with_line(&mut self) -> Result<Vec<String>, String> {
         let (info, content) = (&mut self.info, &self.content);
         let mut result = Vec::new();
         //header
-        info.set_note_type(Self::LINE_TYPE);
         result.extend(info.generate_header());
         let author = &info.generate_author_info();
         let title = info.title();
@@ -52,8 +50,8 @@ mod public {
             "
 [info]
 author = \"李斯\"
-deck = \"New::语文\"
-card_template = \"语文::古诗文\"
+deck = \"New::语文::挖空\"
+card_template = \"语文::古诗文::挖空\"
 title = \"谏逐客书\"
 
 [content]
@@ -88,8 +86,8 @@ paragraph = [
             "
 [info]
 author = \"李斯\"
-deck = \"New::语文\"
-card_template = \"语文::古诗文\"
+deck = \"New::语文::挖空\"
+card_template = \"语文::古诗文::挖空\"
 title = \"谏逐客书\"
 
 [content]
