@@ -1,4 +1,4 @@
-use crate::character::Character;
+use crate::Character;
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Text {

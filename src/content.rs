@@ -1,4 +1,4 @@
-use crate::text::Text;
+use crate::Text;
 use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize, Default)]
 pub struct Content {
