@@ -1,15 +1,22 @@
 [package]
 name = "anki_maker"
-version = "0.5.6"
+version = "0.5.7"
 edition = "2021"
 
 [dependencies]
-eframe = { version = "0.22", features = [
-    "accesskit",     # (Default) Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
-    "default_fonts", # (Default) Embed the default egui fonts.
-    "glow",          # (Default) Use the glow rendering backend. Alternative: "wgpu".
-    "persistence",   # Enable restoring app state when restarting the app.
-] }
+
 diff = "0.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8"
+clap = "4.4"
+app = { path = "./app" }
+
+[[bin]]
+name = "cli"
+
+[[bin]]
+name = "gui"
+path = "./src/bin/gui.rs"
+
+[workspace]
+members = ["app"]

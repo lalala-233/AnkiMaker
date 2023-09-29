@@ -1,4 +1,3 @@
-pub mod app;
 mod character;
 pub mod config;
 mod content;

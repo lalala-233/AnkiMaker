@@ -1,4 +1,3 @@
-use anki_maker::app::App;
 use std::{env, error::Error, fs};
 
 fn main() {
@@ -45,10 +44,4 @@ fn default_file() -> Result<(), Box<dyn Error>> {
     let lines = toml::to_string(&lines).unwrap();
     fs::write(filename, lines)?;
     Ok(())
-}
-
-fn app() -> eframe::Result<()> {
-    let app_name = "Anki Maker";
-    let app_options = eframe::NativeOptions::default();
-    eframe::run_native(app_name, app_options, Box::new(|cc| Box::new(App::new(cc))))
 }
