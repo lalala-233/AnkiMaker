@@ -1,5 +1,6 @@
 use crate::Config;
 use clap::Parser;
+use indicatif::ProgressIterator;
 use std::{error::Error, fs};
 
 #[derive(Parser)]
@@ -13,28 +14,33 @@ struct AnkiMaker {
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     let args = AnkiMaker::parse();
-    for path in args.path {
-        if path == "default" {
-            default_file()?
-        } else {
-            generate(path)?
-        }
+    // A progress bar appears, but it seems too short to see
+    for filename in args.path.iter().progress() {
+        deal_with(filename)?;
     }
     Ok(())
 }
 
-fn generate(mut path: String) -> Result<(), Box<dyn Error>> {
-    let content = fs::read_to_string(path.clone())?;
+fn deal_with(filename: &str) -> Result<(), Box<dyn Error>> {
+    if filename == "default" {
+        default_file()?
+    } else {
+        generate(filename)?
+    }
+    Ok(())
+}
+
+fn generate(filename: &str) -> Result<(), Box<dyn Error>> {
+    let content = fs::read_to_string(filename.clone())?;
     let mut toml: Config = toml::from_str(&content)?;
     match toml.generate_with_line() {
         Ok(lines) => {
             let lines: String = lines.into_iter().map(|line| format!("{line}\n")).collect();
-            path.push_str(".txt");
-            fs::write(path.clone(), lines)
-                .map_err(|error_info| format!("Error: In {path}.\nDetails:{error_info}"))?;
+            fs::write(format!("{filename}.txt"), lines)
+                .map_err(|error_info| format!("Error: In {filename}.\nDetails:{error_info}"))?;
         }
         Err(error_info) => {
-            let error_info = format!("Error: In {path}.\nDetails:{error_info}");
+            let error_info = format!("Error: In {filename}.\nDetails:{error_info}");
             return Err(error_info.into());
         }
     }
