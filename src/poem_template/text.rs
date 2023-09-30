@@ -1,30 +1,32 @@
-use crate::Character;
-
+use super::Character;
+use super::RawCharacter;
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Text {
     text: Vec<Character>,
 }
 impl Text {
-    pub fn push(&mut self, symbol: Character) {
+    pub fn push(&mut self, raw_char: RawCharacter) {
         let last = self.text.last_mut();
         match last {
-            Some(Character::Symbol(last)) => match symbol {
-                Character::Symbol(symbol) => last.push_str(&symbol),
-                Character::RightQuotationMark => last.push(Character::RIGHT_QUOTATION_MARK),
-                Character::Text(_) => self.text.push(symbol),
+            Some(Character::Symbol(last)) => match raw_char {
+                RawCharacter::Symbol(_) | RawCharacter::RightQuotationMark => {
+                    last.push_str(&raw_char)
+                }
+                RawCharacter::Text(_) => self.text.push(raw_char.into()),
             },
-            Some(Character::Text(last)) => match symbol {
-                Character::Symbol(_) => self.text.push(symbol),
-                Character::RightQuotationMark => last.push(Character::RIGHT_QUOTATION_MARK),
-                Character::Text(text) => last.push_str(&text),
+            Some(Character::Text(last)) => match raw_char {
+                RawCharacter::Symbol(_) => self.text.push(raw_char.into()),
+                RawCharacter::RightQuotationMark | RawCharacter::Text(_) => {
+                    last.push_str(&raw_char)
+                }
             },
-            _ => self.text.push(symbol),
+            None => self.text.push(raw_char.into()),
         }
     }
     pub fn from(text: &str) -> Result<Text, String> {
         let mut result = Text::default();
         for symbol in text.chars() {
-            result.push(Character::from(symbol)?);
+            result.push(RawCharacter::from(symbol)?);
         }
         Ok(result)
     }
@@ -35,24 +37,20 @@ impl Text {
 impl From<Text> for Vec<String> {
     fn from(val: Text) -> Self {
         let mut result = Vec::with_capacity(val.text.len() / 2 + 3);
-        let mut iter = val.text.iter();
+        let mut iter = val.text.into_iter();
         result.push("".to_string());
         match iter.next() {
             Some(Character::Symbol(symbol)) => {
-                result.push(symbol.to_string());
-                result
-                    .last_mut()
-                    .unwrap()
-                    .push_str(&iter.next().unwrap().to_string());
+                result.push(symbol);
+                result.last_mut().unwrap().push_str(&iter.next().unwrap());
             }
-            Some(Character::Text(text)) => result.push(text.to_string()),
-            _ => (), //RightQuotationMark are not possible in Text
+            Some(Character::Text(text)) => result.push(text),
+            _ => (), //Just a empty paragraph
         }
         for symbol in iter {
             match symbol {
-                Character::Text(text) => result.push(text.to_string()),
-                Character::Symbol(symbol) => result.last_mut().unwrap().push_str(symbol),
-                _ => (),
+                Character::Text(text) => result.push(text),
+                Character::Symbol(symbol) => result.last_mut().unwrap().push_str(&symbol),
             }
         }
         result.push("".to_string());
@@ -61,7 +59,7 @@ impl From<Text> for Vec<String> {
 }
 #[cfg(test)]
 mod public {
-    use crate::text::{Character, Text};
+    use super::{Character, RawCharacter, Text};
     #[test]
     pub fn from() {
         let tests = (
@@ -125,13 +123,13 @@ mod public {
     #[test]
     pub fn push() {
         let symbols = (
-            Character::Symbol("，".to_string()),
-            Character::Text("测试".to_string()),
-            Character::RightQuotationMark,
-            Character::Text("测试".to_string()),
-            Character::RightQuotationMark,
-            Character::Symbol("，，".to_string()),
-            Character::RightQuotationMark,
+            RawCharacter::Symbol("，".to_string()),
+            RawCharacter::Text("测试".to_string()),
+            RawCharacter::RightQuotationMark,
+            RawCharacter::Text("测试".to_string()),
+            RawCharacter::RightQuotationMark,
+            RawCharacter::Symbol("，，".to_string()),
+            RawCharacter::RightQuotationMark,
         );
         let expect = Text {
             text: vec![

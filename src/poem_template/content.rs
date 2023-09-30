@@ -1,4 +1,4 @@
-use crate::Text;
+use super::Text;
 use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize, Default)]
 pub struct Content {
@@ -73,8 +73,7 @@ mod public {
 }
 #[cfg(test)]
 mod private {
-    use super::Text;
-    use crate::Content;
+    use super::{Content, Text};
     #[test]
     fn generate_texts() {
         let paragraph = vec![

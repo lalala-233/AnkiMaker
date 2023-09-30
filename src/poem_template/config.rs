@@ -1,4 +1,4 @@
-use crate::{Content, Info};
+use super::{Content, Info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]

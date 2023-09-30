@@ -1,4 +1,4 @@
-use crate::Config;
+use crate::poem_template::Config;
 use clap::Parser;
 use indicatif::ProgressIterator;
 use std::{error::Error, fs};
