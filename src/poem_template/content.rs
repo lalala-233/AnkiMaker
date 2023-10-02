@@ -30,7 +30,9 @@ impl Content {
     fn generate_texts(&self) -> Result<Vec<Text>, String> {
         let mut texts = Vec::with_capacity(self.paragraph.len());
         for text in &self.paragraph {
-            texts.push(Text::from(text)?)
+            texts.push(
+                Text::from(text).map_err(|err| format!("Content 中存在不合规的字符「{err}」。"))?,
+            )
         }
         Ok(texts)
     }
@@ -66,7 +68,7 @@ mod public {
             "某人:你好,我好，大家好！不是吗?".to_string(),
             "哦，是的。我不是!".to_string(),
         ];
-        let expect = Err(":".to_string());
+        let expect = Err("Content 中存在不合规的字符「:」。".to_string());
         let actual = Content { paragraph }.parse_to_line('|');
         assert_eq!(expect, actual);
     }
@@ -91,7 +93,7 @@ mod private {
             "哦，是的.我不是！".to_string(),
             "某人：你好,我好，大家好！不是吗？".to_string(),
         ];
-        let expect = Err(".".to_string());
+        let expect = Err("Content 中存在不合规的字符「.」。".to_string());
         let actual = Content { paragraph }.generate_texts();
         assert_eq!(expect, actual)
     }

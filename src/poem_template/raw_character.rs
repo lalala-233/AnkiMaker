@@ -14,7 +14,7 @@ impl RawCharacter {
                 || matches!(character, '‘' | '’' | '“' | '”')
         };
         if is_error_char(character) {
-            return Err(character.to_string());
+            return Err(format!("{character}"));
         }
         let symbol = character.to_string();
         if symbol.contains(Self::PASSED_CHARACTER) {

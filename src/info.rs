@@ -19,7 +19,7 @@ impl Default for Info {
             deck: str.clone(),
             dynasty: optional,
             separator: None,
-            title: str.clone(),
+            title: str,
         }
     }
 }

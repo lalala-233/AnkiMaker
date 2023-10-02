@@ -16,14 +16,7 @@ impl Config {
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = info.separator();
-        let paragraphs = match content.parse_to_line(separator) {
-            Ok(paragraphs) => paragraphs,
-            Err(error_symbol) => {
-                return Err(format!(
-                    "Content 中存在英文符号「{error_symbol}」，会影响笔记生成的效果，请检查！"
-                ))
-            }
-        };
+        let paragraphs = content.parse_to_line(separator)?;
 
         let mut sum_para = 0;
         let mut sum_line = 0;
@@ -100,8 +93,7 @@ paragraph = [
 ",
         )
         .unwrap();
-        let expect = Err("Content 中存在英文符号「.」，会影响笔记生成的效果，请检查！".to_string());
         let actual = config_err.generate_with_line();
-        assert_eq!(expect, actual)
+        assert!(actual.is_err())
     }
 }
