@@ -1,6 +1,6 @@
 [package]
 name = "anki_maker"
-version = "0.5.11"
+version = "0.5.12"
 edition = "2021"
 
 [dependencies]
@@ -15,7 +15,7 @@ eframe = { version = "0.23", features = [
     "default_fonts", # (Default) Embed the default egui fonts.
     "glow",          # (Default) Use the glow rendering backend. Alternative: "wgpu".
     "persistence",   # Enable restoring app state when restarting the app.
-] }
+], optional = true }
 
 [[bin]]
 name = "ankimaker"
@@ -24,3 +24,5 @@ name = "ankimaker"
 name = "gui"
 path = "./src/bin/gui.rs"
 
+[features]
+gui = ["eframe"]
