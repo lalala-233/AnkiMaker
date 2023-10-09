@@ -34,4 +34,11 @@ impl Info {
             Self::DEFAULT_SEPARATOR
         }
     }
+    pub fn new(card_template: String, deck: String, separator: Option<String>) -> Self {
+        Self {
+            card_template,
+            deck,
+            separator,
+        }
+    }
 }

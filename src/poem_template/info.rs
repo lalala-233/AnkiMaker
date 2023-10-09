@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct Info {
-    author: Option<String>,
     card_template: String,
     deck: String,
+    title: String,
+    author: Option<String>,
     dynasty: Option<String>,
     separator: Option<String>,
-    title: String,
 }
 impl Default for Info {
     fn default() -> Self {
@@ -53,6 +53,23 @@ impl Info {
     }
     pub fn title(&self) -> &String {
         &self.title
+    }
+    pub fn new(
+        card_template: String,
+        deck: String,
+        title: String,
+        author: Option<String>,
+        dynasty: Option<String>,
+        separator: Option<String>,
+    ) -> Self {
+        Self {
+            card_template,
+            deck,
+            title,
+            author,
+            dynasty,
+            separator,
+        }
     }
 }
 

@@ -2,7 +2,7 @@
 pub mod app;
 pub mod cli;
 mod default_template;
-mod info;
+mod root_info;
 mod mode;
 mod poem_template;
-pub use info::Info;
+pub use root_info::RootInfo;
