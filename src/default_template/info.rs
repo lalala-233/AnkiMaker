@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Info {
     card_template: String,
     deck: String,
-    separator: Option<char>,
+    separator: Option<String>,
 }
 impl Default for Info {
     fn default() -> Self {
@@ -17,7 +17,7 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: char = '|';
+    const DEFAULT_SEPARATOR: &str = "|";
     pub fn generate_header(&self) -> Vec<String> {
         let header = vec![
             format!("#separator:{}", self.separator()),
@@ -27,8 +27,8 @@ impl Info {
         ];
         header
     }
-    pub fn separator(&self) -> char {
-        if let Some(separator) = self.separator {
+    pub fn separator(&self) -> &str {
+        if let Some(separator) = &self.separator {
             separator
         } else {
             Self::DEFAULT_SEPARATOR
