@@ -5,4 +5,3 @@ mod default_template;
 mod root_info;
 mod mode;
 mod poem_template;
-pub use root_info::RootInfo;

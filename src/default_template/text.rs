@@ -12,3 +12,8 @@ impl Text {
         text.into_iter()
     }
 }
+impl From<Vec<String>> for Text {
+    fn from(value: Vec<String>) -> Self {
+        Self(value)
+    }
+}

@@ -9,4 +9,9 @@ impl Content {
     pub fn into_iter(self) -> std::vec::IntoIter<Text> {
         self.paragraph.into_iter()
     }
+    pub fn new(paragraph: Vec<Vec<String>>) -> Self {
+        Self {
+            paragraph: paragraph.into_iter().map(|text| text.into()).collect(),
+        }
+    }
 }
