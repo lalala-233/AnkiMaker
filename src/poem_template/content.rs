@@ -24,7 +24,7 @@ impl Content {
             .collect();
         Ok(texts)
     }
-    pub fn new(paragraph: Vec<String>) -> Self {
+    pub fn _new(paragraph: Vec<String>) -> Self {
         Self { paragraph }
     }
 }
