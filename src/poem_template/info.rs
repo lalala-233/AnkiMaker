@@ -24,7 +24,7 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: &str = "|";
+    const DEFAULT_SEPARATOR: &'static str = "|";
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {

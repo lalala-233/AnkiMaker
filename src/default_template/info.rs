@@ -17,7 +17,7 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: &str = "|";
+    const DEFAULT_SEPARATOR: &'static str = "|";
     pub fn generate_header(&self) -> Vec<String> {
         let header = vec![
             format!("#separator:{}", self.separator()),

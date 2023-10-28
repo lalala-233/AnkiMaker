@@ -5,8 +5,8 @@ pub enum RawCharacter {
     RightQuotationMark,
 }
 impl RawCharacter {
-    const PASSED_CHARACTER: &[char] = &['！', '：', '；', '，', '。', '？'];
-    pub const RIGHT_QUOTATION_MARK: &str = "」";
+    const PASSED_CHARACTER: &'static [char] = &['！', '：', '；', '，', '。', '？'];
+    pub const RIGHT_QUOTATION_MARK: &'static str = "」";
     pub fn from(character: char) -> Result<RawCharacter, String> {
         let is_error_char = |character: char| {
             character.is_ascii_graphic()
