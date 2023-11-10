@@ -1,6 +1,6 @@
 use std::error::Error;
-
+#[cfg(feature = "gui")]
 fn main() -> Result<(), Box<dyn Error>> {
-    app::app("Anki Maker")?;
+    anki_maker::app::app("Anki Maker")?;
     Ok(())
 }

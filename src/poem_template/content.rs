@@ -6,7 +6,7 @@ pub struct Content {
 }
 
 impl Content {
-    pub fn parse_to_line(&self, separator: char) -> Result<Vec<Vec<String>>, String> {
+    pub fn parse_to_line(&self, separator: &str) -> Result<Vec<Vec<String>>, String> {
         // 匹配每个段落，分段、合成
         let texts: Vec<Vec<String>> = self
             .generate_texts()?
@@ -23,6 +23,9 @@ impl Content {
             })
             .collect();
         Ok(texts)
+    }
+    pub fn _new(paragraph: Vec<String>) -> Self {
+        Self { paragraph }
     }
 }
 impl Content {
@@ -60,7 +63,7 @@ mod public {
         .into_iter()
         .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
         .collect();
-        let actual = Content { paragraph }.parse_to_line('|').unwrap();
+        let actual = Content { paragraph }.parse_to_line("|").unwrap();
         assert_eq!(expect, actual);
         // 存在英文感叹号、英文冒号、英文逗号、英文问号
         let paragraph = vec![
@@ -69,7 +72,7 @@ mod public {
             "哦，是的。我不是!".to_string(),
         ];
         let expect = Err("Content 中存在不合规的字符「:」。".to_string());
-        let actual = Content { paragraph }.parse_to_line('|');
+        let actual = Content { paragraph }.parse_to_line("|");
         assert_eq!(expect, actual);
     }
 }

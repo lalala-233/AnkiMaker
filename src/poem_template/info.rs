@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct Info {
-    author: Option<String>,
     card_template: String,
     deck: String,
-    dynasty: Option<String>,
-    separator: Option<char>,
     title: String,
+    author: Option<String>,
+    dynasty: Option<String>,
+    separator: Option<String>,
 }
 impl Default for Info {
     fn default() -> Self {
@@ -24,7 +24,7 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: char = '|';
+    const DEFAULT_SEPARATOR: &'static str = "|";
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
@@ -44,8 +44,8 @@ impl Info {
         header.push(format!("#deck:{}::{}", self.deck, self.title));
         header
     }
-    pub fn separator(&self) -> char {
-        if let Some(separator) = self.separator {
+    pub fn separator(&self) -> &str {
+        if let Some(separator) = &self.separator {
             separator
         } else {
             Self::DEFAULT_SEPARATOR
@@ -54,29 +54,62 @@ impl Info {
     pub fn title(&self) -> &String {
         &self.title
     }
+    pub fn new(
+        card_template: String,
+        deck: String,
+        title: String,
+        author: Option<String>,
+        dynasty: Option<String>,
+        separator: Option<String>,
+    ) -> Self {
+        Self {
+            card_template,
+            deck,
+            title,
+            author,
+            dynasty,
+            separator,
+        }
+    }
 }
 
 #[cfg(test)]
 mod public {
-    use super::*;
+    use super::Info;
+    use default::default;
+    pub mod default {
+        use super::Info;
+        pub fn default() -> (
+            String,
+            String,
+            String,
+            Option<String>,
+            Option<String>,
+            Option<String>,
+            Info,
+        ) {
+            let card_template = "测试模板".to_string();
+            let deck = "New::语文".to_string();
+            let title = "我真的好帅".to_string();
+            let author = Some("我".to_string());
+            let dynasty = Some("现代".to_string());
+            let separator = Some("|".to_string());
+            let info = Info {
+                author: author.clone(),
+                card_template: card_template.clone(),
+                deck: deck.clone(),
+                dynasty: dynasty.clone(),
+                separator: separator.clone(),
+                title: title.clone(),
+            };
+            (card_template, deck, title, author, dynasty, separator, info)
+        }
+    }
     #[test]
     pub fn generate_author_info() {
-        let author = "我".to_string();
-        let card_template = "测试模板".to_string();
-        let deck = "New::语文".to_string();
-        let dynasty = "现代".to_string();
-        let separator = Some('|');
-        let title = "我真的好帅".to_string();
+        let (_card_template, _deck, _titlee, author, dynasty, _separator, info) = default();
         //all
-        let info = Info {
-            author: Some(author.clone()),
-            card_template,
-            deck,
-            dynasty: Some(dynasty.clone()),
-            separator,
-            title,
-        };
-        let expect = format!("（{}）{}", dynasty, author);
+        let expect = format!("（{}）{}", dynasty.unwrap(), author.unwrap());
         let actual = info.generate_author_info();
         assert_eq!(expect, actual);
         //no Option
@@ -92,23 +125,9 @@ mod public {
     }
     #[test]
     pub fn generate_header() {
-        let author = Some("我".to_string());
-        let card_template = "测试模板".to_string();
-        let deck = "New::语文".to_string();
-        let dynasty = Some("现代".to_string());
-        let separator = ',';
-        let title = "我真的好帅".to_string();
-        //all
-        let info = Info {
-            author,
-            card_template: card_template.clone(),
-            deck,
-            dynasty,
-            separator: Some(separator),
-            title,
-        };
+        let (card_template, _deck, _title, _author, _dynasty, separator, info) = default();
         let mut expect = vec![
-            format!("#separator:{}", separator),
+            format!("#separator:{}", separator.unwrap()),
             "#html:true".to_string(),
             format!("#notetype:{}", &card_template),
             "#deck:New::语文::我真的好帅".to_string(),
@@ -128,21 +147,7 @@ mod public {
     }
     #[test]
     pub fn title() {
-        let author = Some("我".to_string());
-        let card_template = "测试模板".to_string();
-        let deck = "New::语文".to_string();
-        let dynasty = Some("现代".to_string());
-        let separator = Some('|');
-        let title = "我真的好帅".to_string();
-        //all
-        let info = Info {
-            author,
-            card_template,
-            deck,
-            dynasty,
-            separator,
-            title: title.clone(),
-        };
+        let (_card_template, _deck, title, _author, _dynasty, _separator, info) = default();
         let expect = &title;
         let actual = info.title();
         assert_eq!(expect, actual);
@@ -158,22 +163,8 @@ mod public {
     }
     #[test]
     pub fn separator() {
-        let author = Some("我".to_string());
-        let card_template = "测试模板".to_string();
-        let deck = "New::语文".to_string();
-        let dynasty = Some("现代".to_string());
-        let separator = ',';
-        let title = "我真的好帅".to_string();
-        //all
-        let info = Info {
-            author,
-            card_template,
-            deck,
-            dynasty,
-            separator: Some(separator),
-            title,
-        };
-        let expect = separator;
+        let (_card_template, _deck, _title, _author, _dynasty, separator, info) = default();
+        let expect = separator.unwrap();
         let actual = info.separator();
         assert_eq!(expect, actual);
         //no Option
