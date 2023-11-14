@@ -59,7 +59,7 @@ paragraph = [
         .unwrap();
         let expect: Vec<String> = vec![
             "#separator:|",
-            "#html:true",
+            "#html:false",
             "#notetype:语文::古诗文::挖空",
             "#deck:New::语文::挖空::谏逐客书",
             "谏逐客书（1-1）|李斯||臣闻吏议逐客，|窃以为过矣。",
