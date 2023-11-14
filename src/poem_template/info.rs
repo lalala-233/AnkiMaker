@@ -39,7 +39,7 @@ impl Info {
     pub fn generate_header(&self) -> Vec<String> {
         let mut header = Vec::new();
         header.push(format!("#separator:{}", self.separator()));
-        header.push("#html:true".to_string());
+        header.push("#html:false".to_string());
         header.push(format!("#notetype:{}", self.card_template));
         header.push(format!("#deck:{}::{}", self.deck, self.title));
         header
@@ -128,7 +128,7 @@ mod public {
         let (card_template, _deck, _title, _author, _dynasty, separator, info) = default();
         let mut expect = vec![
             format!("#separator:{}", separator.unwrap()),
-            "#html:true".to_string(),
+            "#html:false".to_string(),
             format!("#notetype:{}", &card_template),
             "#deck:New::语文::我真的好帅".to_string(),
         ];

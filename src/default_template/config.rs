@@ -42,7 +42,7 @@ the scientific study of the normal functions of living things 生理学
 the way in which a particular living thing functions 生理机能\"\"\"]]
 ";
         let expect =vec![ "#separator:|".to_string(),
-"#html:true".to_string(),
+"#html:false".to_string(),
 "#notetype:单面::例句::单词::注释".to_string(),
 "#deck:New::英语::单词".to_string(),
 "\"Physiology is the study of how living things work.\"|\"physiology\"|\"生理学是研究生物功能的学科。

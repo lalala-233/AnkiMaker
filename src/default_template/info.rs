@@ -21,7 +21,7 @@ impl Info {
     pub fn generate_header(&self) -> Vec<String> {
         let header = vec![
             format!("#separator:{}", self.separator()),
-            "#html:true".to_string(),
+            "#html:false".to_string(),
             format!("#notetype:{}", self.card_template),
             format!("#deck:{}", self.deck),
         ];
