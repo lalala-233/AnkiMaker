@@ -14,8 +14,11 @@ impl Config {
         result.extend(self.info.generate_header());
         let lines = paragraph.map(|text| {
             let text = text.into_iter();
-            text.map(|content| format!("\"{}\"{}", content, separator))
-                .collect()
+            text.fold(String::new(), |mut output, content| {
+                use std::fmt::Write;
+                let _ = write!(output, "\"{}\"{}", content, separator);
+                output
+            })
         });
         result.extend(lines);
         result
