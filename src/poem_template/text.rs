@@ -9,14 +9,14 @@ impl Text {
         let last = self.text.last_mut();
         match last {
             Some(Character::Symbol(last)) => match raw_char {
-                RawCharacter::Symbol(_) | RawCharacter::RightQuotationMark => {
+                RawCharacter::Symbol(_) | RawCharacter::RightQuotationMark(_) => {
                     last.push_str(&raw_char)
                 }
                 RawCharacter::Text(_) => self.text.push(raw_char.into()),
             },
             Some(Character::Text(last)) => match raw_char {
                 RawCharacter::Symbol(_) => self.text.push(raw_char.into()),
-                RawCharacter::RightQuotationMark | RawCharacter::Text(_) => {
+                RawCharacter::RightQuotationMark(_) | RawCharacter::Text(_) => {
                     last.push_str(&raw_char)
                 }
             },
@@ -122,30 +122,33 @@ mod public {
     }
     #[test]
     pub fn push() {
-        let symbols = (
+        let raw_chars = vec![
             RawCharacter::Symbol("，".to_string()),
             RawCharacter::Text("测试".to_string()),
-            RawCharacter::RightQuotationMark,
+            RawCharacter::Symbol("，".to_string()),
+            RawCharacter::RightQuotationMark("』".to_string()),
             RawCharacter::Text("测试".to_string()),
-            RawCharacter::RightQuotationMark,
+            RawCharacter::RightQuotationMark("」".to_string()),
+            RawCharacter::Text("测试".to_string()),
+            RawCharacter::RightQuotationMark("」".to_string()),
             RawCharacter::Symbol("，，".to_string()),
-            RawCharacter::RightQuotationMark,
-        );
+            RawCharacter::RightQuotationMark("』".to_string()),
+        ];
         let expect = Text {
             text: vec![
                 Character::Symbol("，".to_string()),
+                Character::Text("测试".to_string()),
+                Character::Symbol("，』".to_string()),
                 Character::Text("测试」测试」".to_string()),
-                Character::Symbol("，，」".to_string()),
+                Character::Symbol("，，』".to_string()),
             ],
         };
-        let mut actual = Text::default();
-        actual.push(symbols.0);
-        actual.push(symbols.1);
-        actual.push(symbols.2);
-        actual.push(symbols.3);
-        actual.push(symbols.4);
-        actual.push(symbols.5);
-        actual.push(symbols.6);
+        let actual = raw_chars
+            .into_iter()
+            .fold(Text::default(), |mut text, raw_char| {
+                text.push(raw_char);
+                text
+            });
         assert_eq!(expect, actual);
     }
 }

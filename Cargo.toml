@@ -1,10 +1,10 @@
 [package]
 name = "anki_maker"
-version = "0.6.2"
+version = "0.6.3"
 edition = "2021"
+default-run = "ankimaker"
 
 [dependencies]
-
 clap = { version = "4.4", features = ["derive"] }
 diff = "0.1"
 indicatif = "0.17"

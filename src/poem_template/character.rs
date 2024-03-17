@@ -18,7 +18,7 @@ impl From<RawCharacter> for Character {
         match val {
             RawCharacter::Symbol(symbol) => Character::Symbol(symbol),
             RawCharacter::Text(text) => Character::Text(text),
-            RawCharacter::RightQuotationMark => {
+            RawCharacter::RightQuotationMark(_) => {
                 panic!("RightQuotationMark can't be into Character")
             }
         }
