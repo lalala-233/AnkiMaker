@@ -1,32 +1,37 @@
+use crate::mode::Mode;
 use clap::Parser;
 use indicatif::ProgressIterator;
 use std::{error::Error, fs};
 
-use crate::mode::Mode;
-
 #[derive(Parser)]
-/// Generate cards from files.
+/// Generate cards from toml files.
 #[command(version)]
 struct AnkiMaker {
-    /// The path to the file to read
+    /// Path to the toml file.
     #[arg(required = true)]
     path: Vec<String>,
+    /// Use default template.
+    #[arg(long)]
+    default: bool,
+    /// Output file name.
+    #[arg(short, long)]
+    output: Option<String>,
 }
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     let args = AnkiMaker::parse();
-    // A progress bar appears, but it seems too short to see
-    for filename in args.path.iter().progress() {
-        choose_template(filename)?;
+    if args.default {
+        default_file(&args.path)?;
+    } else {
+        // A progress bar appears, but it seems too short to see
+        for filename in args.path.iter().progress() {
+            choose_template(filename)?;
+        }
     }
     Ok(())
 }
 
 fn choose_template(filename: &str) -> Result<(), Box<dyn Error>> {
-    if filename == "default" {
-        default_file()?;
-        return Ok(());
-    }
     use serde::{Deserialize, Serialize};
     #[derive(Deserialize, Serialize, Default)]
     struct Config {
@@ -47,11 +52,12 @@ fn choose_template(filename: &str) -> Result<(), Box<dyn Error>> {
     }
     Ok(())
 }
-fn default_file() -> Result<(), Box<dyn Error>> {
-    let filename = "default.toml";
+fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
     let lines = crate::poem_template::Config::default();
     let lines = toml::to_string(&lines).unwrap();
-    fs::write(filename, lines)
-        .map_err(|error_info| format!("Error: In {filename}.\nDetails:{error_info}"))?;
+    for filename in filenames.iter().progress() {
+        fs::write(filename, lines.clone())
+            .map_err(|error_info| format!("Error: In {filename}.\nDetails:{error_info}"))?;
+    }
     Ok(())
 }
