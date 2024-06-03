@@ -25,13 +25,15 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     } else {
         // A progress bar appears, but it seems too short to see
         for filename in args.path.iter().progress() {
-            choose_template(filename)?;
+            let content = process_file(filename)?;
+            fs::write(format!("{filename}.txt"), content)
+                .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
         }
     }
     Ok(())
 }
 
-fn choose_template(filename: &str) -> Result<(), Box<dyn Error>> {
+fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
     use serde::{Deserialize, Serialize};
     #[derive(Deserialize, Serialize, Default)]
     struct Config {
@@ -46,11 +48,10 @@ fn choose_template(filename: &str) -> Result<(), Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: Config = toml::from_str(&content)?;
     match toml.info.mode.into() {
-        Mode::Default => crate::default_template::generate(filename)?,
-        Mode::Poem => crate::poem_template::generate(filename)?,
-        Mode::Unknown => crate::default_template::generate(filename)?,
+        Mode::Default => crate::default_template::generate(filename),
+        Mode::Poem => crate::poem_template::generate(filename),
+        Mode::Unknown => crate::default_template::generate(filename),
     }
-    Ok(())
 }
 fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
     let lines = crate::poem_template::Config::default();

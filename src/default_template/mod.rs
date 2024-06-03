@@ -8,7 +8,7 @@ pub use config::Config;
 pub use content::Content;
 pub use info::Info;
 pub use text::Text;
-pub fn generate(filename: &str) -> Result<(), Box<dyn Error>> {
+pub fn generate(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: Config = toml::from_str(&content)?;
     let lines: String = toml
@@ -19,7 +19,5 @@ pub fn generate(filename: &str) -> Result<(), Box<dyn Error>> {
             let _ = writeln!(output, "{}", line);
             output
         });
-    fs::write(format!("{filename}.txt"), lines)
-        .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
-    Ok(())
+    Ok(lines)
 }

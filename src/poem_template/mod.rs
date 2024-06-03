@@ -12,23 +12,19 @@ pub use raw_character::RawCharacter;
 pub use text::Text;
 
 use std::{error::Error, fs};
-pub fn generate(filename: &str) -> Result<(), Box<dyn Error>> {
+pub fn generate(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let mut toml: Config = toml::from_str(&content)?;
-    match toml.generate_with_line() {
-        Ok(lines) => {
-            let lines: String = lines.into_iter().fold(String::new(), |mut output, line| {
-                use std::fmt::Write;
-                let _ = writeln!(output, "{}", line);
-                output
-            });
-            fs::write(format!("{filename}.txt"), lines)
-                .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
-        }
+    let content = match toml.generate_with_line() {
+        Ok(lines) => lines.into_iter().fold(String::new(), |mut output, line| {
+            use std::fmt::Write;
+            let _ = writeln!(output, "{}", line);
+            output
+        }),
         Err(error_info) => {
             let error_info = format!("Error: In {filename}.\nDetails:{error_info}");
             return Err(error_info.into());
         }
-    }
-    Ok(())
+    };
+    Ok(content)
 }
