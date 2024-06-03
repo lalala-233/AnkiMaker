@@ -26,13 +26,16 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         // A progress bar appears, but it seems too short to see
         for filename in args.path.iter().progress() {
             let content = process_file(filename)?;
-            fs::write(format!("{filename}.txt"), content)
-                .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
+            write_to_file(filename, &content)?
         }
     }
     Ok(())
 }
-
+fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
+    fs::write(format!("{filename}.txt"), content)
+        .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
+    Ok(())
+}
 fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
     use serde::{Deserialize, Serialize};
     #[derive(Deserialize, Serialize, Default)]
@@ -55,10 +58,9 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
 }
 fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
     let lines = crate::poem_template::Config::default();
-    let lines = toml::to_string(&lines).unwrap();
+    let content = toml::to_string(&lines).unwrap();
     for filename in filenames.iter().progress() {
-        fs::write(filename, lines.clone())
-            .map_err(|error_info| format!("Error: In {filename}.\nDetails:{error_info}"))?;
+        write_to_file(filename, &content)?
     }
     Ok(())
 }
