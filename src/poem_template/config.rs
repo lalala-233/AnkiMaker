@@ -8,8 +8,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn generate_with_line(&mut self) -> Result<Vec<String>, String> {
-        let (info, content) = (&mut self.info, &self.content);
+    pub fn generate(self) -> Result<Vec<String>, String> {
+        let (info, content) = (&self.info, &self.content);
         let mut result = Vec::new();
         //header
         result.extend(info.generate_header());
@@ -39,7 +39,7 @@ mod public {
     use super::*;
     #[test]
     pub fn generate_with_line() {
-        let mut config: Config = toml::from_str(
+        let config: Config = toml::from_str(
             "
 [info]
 author = \"李斯\"
@@ -72,10 +72,10 @@ paragraph = [
         .into_iter()
         .map(|str| str.to_string())
         .collect();
-        let actual = config.generate_with_line().unwrap();
+        let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
         // 存在英文句号、英文逗号
-        let mut config_err: Config = toml::from_str(
+        let config_err: Config = toml::from_str(
             "
 [info]
 author = \"李斯\"
@@ -93,7 +93,7 @@ paragraph = [
 ",
         )
         .unwrap();
-        let actual = config_err.generate_with_line();
+        let actual = config_err.generate();
         assert!(actual.is_err())
     }
 }
