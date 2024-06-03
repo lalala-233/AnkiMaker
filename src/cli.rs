@@ -1,4 +1,4 @@
-use crate::mode::Mode;
+use crate::{config::Config, default_template::DefaultConfig, mode::Mode};
 use clap::Parser;
 use indicatif::ProgressIterator;
 use std::{error::Error, fs};
@@ -51,9 +51,9 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: Config = toml::from_str(&content)?;
     match toml.info.mode.into() {
-        Mode::Default => crate::default_template::generate(filename),
+        Mode::Default => generate::<DefaultConfig>(filename),
         Mode::Poem => crate::poem_template::generate(filename),
-        Mode::Unknown => crate::default_template::generate(filename),
+        Mode::Unknown => generate::<DefaultConfig>(filename),
     }
 }
 fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
@@ -63,4 +63,18 @@ fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
         write_to_file(filename, &content)?
     }
     Ok(())
+}
+
+fn generate<T: Config>(filename: &str) -> Result<String, Box<dyn Error>> {
+    let content = fs::read_to_string(filename)?;
+    let toml: T = toml::from_str(&content)?;
+    let content: String = toml
+        .generate()
+        .into_iter()
+        .fold(String::new(), |mut output, line| {
+            use std::fmt::Write;
+            let _ = writeln!(output, "{}", line);
+            output
+        });
+    Ok(content)
 }

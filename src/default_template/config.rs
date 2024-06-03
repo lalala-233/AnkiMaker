@@ -1,13 +1,16 @@
+use crate::config::Config;
+
 use super::{Content, Info};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
-pub struct Config {
+pub struct DefaultConfig {
     info: Info,
     content: Content,
 }
-impl Config {
-    pub fn generate(self) -> Vec<String> {
+
+impl Config for DefaultConfig {
+    fn generate(self) -> Vec<String> {
         let separator = self.info.separator();
         let paragraph = self.content.into_iter();
         let mut result = Vec::new();
@@ -26,7 +29,8 @@ impl Config {
 }
 #[cfg(test)]
 mod public {
-    use super::Config;
+    use super::DefaultConfig;
+    use crate::config::Config;
 
     #[test]
     pub fn generate() {
@@ -55,7 +59,7 @@ the scientific study of the normal functions of living things 生理学
 the way in which a particular living thing functions 生理机能\"|".to_string(),
 ];
 
-        let config: Config = toml::from_str(file).unwrap();
+        let config: DefaultConfig = toml::from_str(file).unwrap();
         let actual = config.generate();
         assert_eq!(expect, actual);
     }
