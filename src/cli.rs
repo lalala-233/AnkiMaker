@@ -28,13 +28,13 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         // A progress bar appears, but it seems too short to see
         for filename in args.path.iter().progress() {
             let content = process_file(filename)?;
-            write_to_file(filename, &content)?
+            write_to_file(&format!("{filename}.txt"), &content)?
         }
     }
     Ok(())
 }
 fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
-    fs::write(format!("{filename}.txt"), content)
+    fs::write(filename, content)
         .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
     Ok(())
 }
@@ -66,7 +66,6 @@ fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
     }
     Ok(())
 }
-
 fn generate<T: Config>(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: T = toml::from_str(&content)?;

@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Info {
     card_template: String,
     deck: String,
+    mode: String,
     title: String,
     author: Option<String>,
     dynasty: Option<String>,
@@ -14,12 +15,13 @@ impl Default for Info {
         let optional = Some("".to_string());
         let str = "".to_string();
         Self {
-            author: optional.clone(),
             card_template: str.clone(),
             deck: str.clone(),
+            mode: "poem".to_string(),
+            title: str,
+            author: optional.clone(),
             dynasty: optional,
             separator: None,
-            title: str,
         }
     }
 }
@@ -57,6 +59,7 @@ impl Info {
     pub fn new(
         card_template: String,
         deck: String,
+        mode: String,
         title: String,
         author: Option<String>,
         dynasty: Option<String>,
@@ -65,6 +68,7 @@ impl Info {
         Self {
             card_template,
             deck,
+            mode,
             title,
             author,
             dynasty,
@@ -101,6 +105,7 @@ mod public {
                 dynasty: dynasty.clone(),
                 separator: separator.clone(),
                 title: title.clone(),
+                ..Default::default()
             };
             (card_template, deck, title, author, dynasty, separator, info)
         }

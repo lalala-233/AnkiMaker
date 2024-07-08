@@ -45,6 +45,7 @@ mod public {
 author = \"李斯\"
 deck = \"New::语文::挖空\"
 card_template = \"语文::古诗文::挖空\"
+mode = \"poem\"
 title = \"谏逐客书\"
 
 [content]
@@ -81,6 +82,7 @@ paragraph = [
 author = \"李斯\"
 deck = \"New::语文::挖空\"
 card_template = \"语文::古诗文::挖空\"
+mode = \"poem\"
 title = \"谏逐客书\"
 
 [content]

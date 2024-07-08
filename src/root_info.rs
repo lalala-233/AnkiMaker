@@ -29,11 +29,12 @@ impl From<RootInfo> for crate::poem_template::Info {
     fn from(value: RootInfo) -> Self {
         let card_template = value.card_template;
         let deck = value.deck;
+        let mode = value.mode;
         let title = value.title;
         let author = value.author;
         let dynasty = value.dynasty;
         let separator = value.separator;
-        Self::new(card_template, deck, title, author, dynasty, separator)
+        Self::new(card_template, deck, mode, title, author, dynasty, separator)
     }
 }
 impl From<RootInfo> for crate::default_template::Info {
