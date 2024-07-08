@@ -1,14 +1,14 @@
 use super::{Content, Info};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
-pub struct Config {
+pub struct PoemConfig {
     info: Info,
     content: Content,
 }
-
-impl Config {
-    pub fn generate(self) -> Result<Vec<String>, String> {
+impl Config for PoemConfig {
+    fn generate(self) -> Result<Vec<String>, String> {
         let (info, content) = (&self.info, &self.content);
         let mut result = Vec::new();
         //header
@@ -39,7 +39,7 @@ mod public {
     use super::*;
     #[test]
     pub fn generate_with_line() {
-        let config: Config = toml::from_str(
+        let config: PoemConfig = toml::from_str(
             "
 [info]
 author = \"李斯\"
@@ -75,7 +75,7 @@ paragraph = [
         let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
         // 存在英文句号、英文逗号
-        let config_err: Config = toml::from_str(
+        let config_err: PoemConfig = toml::from_str(
             "
 [info]
 author = \"李斯\"

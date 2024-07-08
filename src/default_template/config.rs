@@ -1,6 +1,5 @@
-use crate::config::Config;
-
 use super::{Content, Info};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
@@ -10,7 +9,7 @@ pub struct DefaultConfig {
 }
 
 impl Config for DefaultConfig {
-    fn generate(self) -> Vec<String> {
+    fn generate(self) -> Result<Vec<std::string::String>, std::string::String> {
         let separator = self.info.separator();
         let paragraph = self.content.into_iter();
         let mut result = Vec::new();
@@ -24,7 +23,7 @@ impl Config for DefaultConfig {
             })
         });
         result.extend(lines);
-        result
+        Ok(result)
     }
 }
 #[cfg(test)]
@@ -60,7 +59,7 @@ the way in which a particular living thing functions 生理机能\"|".to_string(
 ];
 
         let config: DefaultConfig = toml::from_str(file).unwrap();
-        let actual = config.generate();
+        let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
     }
 }
