@@ -46,7 +46,7 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
     }
     #[derive(Deserialize, Serialize, Default)]
     struct Info {
-        card_template: String,
+        notetype: String,
         deck: String,
         mode: String,
     }

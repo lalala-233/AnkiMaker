@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Deserialize, Serialize)]
 pub struct RootInfo {
     author: Option<String>,
-    card_template: String,
+    notetype: String,
     deck: String,
     dynasty: Option<String>,
     separator: Option<String>,
@@ -16,7 +16,7 @@ impl Default for RootInfo {
         let str = "".to_string();
         Self {
             author: optional.clone(),
-            card_template: str.clone(),
+            notetype: str.clone(),
             deck: str.clone(),
             dynasty: optional,
             separator: None,
@@ -27,21 +27,21 @@ impl Default for RootInfo {
 }
 impl From<RootInfo> for crate::poem_template::Info {
     fn from(value: RootInfo) -> Self {
-        let card_template = value.card_template;
+        let notetype = value.notetype;
         let deck = value.deck;
         let mode = value.mode;
         let title = value.title;
         let author = value.author;
         let dynasty = value.dynasty;
         let separator = value.separator;
-        Self::new(card_template, deck, mode, title, author, dynasty, separator)
+        Self::new(notetype, deck, mode, title, author, dynasty, separator)
     }
 }
 impl From<RootInfo> for crate::default_template::Info {
     fn from(value: RootInfo) -> Self {
-        let card_template = value.card_template;
+        let notetype = value.notetype;
         let deck = value.deck;
         let separator = value.separator;
-        Self::new(card_template, deck, separator)
+        Self::new(notetype, deck, separator)
     }
 }

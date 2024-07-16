@@ -35,7 +35,7 @@ mod public {
     pub fn generate() {
         let file="
 [info]
-card_template = \"单面::例句::单词::注释\"
+notetype = \"单面::例句::单词::注释\"
 deck = \"New::英语::单词\"
 mode = \"emphasis\"
 
