@@ -1,35 +1,41 @@
 use super::{Content, Info};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
-pub struct Config {
+pub struct DefaultConfig {
     info: Info,
     content: Content,
 }
-impl Config {
-    pub fn generate(self) -> Vec<String> {
+
+impl Config for DefaultConfig {
+    fn generate(self) -> Result<Vec<std::string::String>, std::string::String> {
         let separator = self.info.separator();
         let paragraph = self.content.into_iter();
         let mut result = Vec::new();
         result.extend(self.info.generate_header());
         let lines = paragraph.map(|text| {
             let text = text.into_iter();
-            text.map(|content| format!("\"{}\"{}", content, separator))
-                .collect()
+            text.fold(String::new(), |mut output, content| {
+                use std::fmt::Write;
+                let _ = write!(output, "\"{}\"{}", content, separator);
+                output
+            })
         });
         result.extend(lines);
-        result
+        Ok(result)
     }
 }
 #[cfg(test)]
 mod public {
-    use super::Config;
+    use super::DefaultConfig;
+    use crate::config::Config;
 
     #[test]
     pub fn generate() {
         let file="
 [info]
-card_template = \"单面::例句::单词::注释\"
+notetype = \"单面::例句::单词::注释\"
 deck = \"New::英语::单词\"
 mode = \"emphasis\"
 
@@ -42,7 +48,7 @@ the scientific study of the normal functions of living things 生理学
 the way in which a particular living thing functions 生理机能\"\"\"]]
 ";
         let expect =vec![ "#separator:|".to_string(),
-"#html:true".to_string(),
+"#html:false".to_string(),
 "#notetype:单面::例句::单词::注释".to_string(),
 "#deck:New::英语::单词".to_string(),
 "\"Physiology is the study of how living things work.\"|\"physiology\"|\"生理学是研究生物功能的学科。
@@ -52,8 +58,8 @@ the scientific study of the normal functions of living things 生理学
 the way in which a particular living thing functions 生理机能\"|".to_string(),
 ];
 
-        let config: Config = toml::from_str(file).unwrap();
-        let actual = config.generate();
+        let config: DefaultConfig = toml::from_str(file).unwrap();
+        let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
     }
 }

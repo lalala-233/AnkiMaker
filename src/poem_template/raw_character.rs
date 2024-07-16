@@ -2,11 +2,11 @@
 pub enum RawCharacter {
     Symbol(String),
     Text(String),
-    RightQuotationMark,
+    RightQuotationMark(String),
 }
 impl RawCharacter {
     const PASSED_CHARACTER: &'static [char] = &['！', '：', '；', '，', '。', '？'];
-    pub const RIGHT_QUOTATION_MARK: &'static str = "」";
+    const RIGHT_QUOTATION_MARK: &'static [char] = &['」', '』'];
     pub fn from(character: char) -> Result<RawCharacter, String> {
         let is_error_char = |character: char| {
             character.is_ascii_graphic()
@@ -21,7 +21,7 @@ impl RawCharacter {
             return Ok(Self::Symbol(symbol));
         }
         if symbol.contains(Self::RIGHT_QUOTATION_MARK) {
-            return Ok(Self::RightQuotationMark);
+            return Ok(Self::RightQuotationMark(symbol));
         }
         Ok(Self::Text(symbol.to_string()))
     }
@@ -31,7 +31,7 @@ impl ToString for RawCharacter {
         match self {
             RawCharacter::Symbol(symbol) => symbol.to_string(),
             RawCharacter::Text(text) => text.to_string(),
-            RawCharacter::RightQuotationMark => Self::RIGHT_QUOTATION_MARK.to_string(),
+            RawCharacter::RightQuotationMark(mark) => mark.to_string(),
         }
     }
 }
@@ -40,7 +40,7 @@ impl std::ops::Deref for RawCharacter {
     fn deref(&self) -> &Self::Target {
         match self {
             RawCharacter::Symbol(content) | RawCharacter::Text(content) => content,
-            RawCharacter::RightQuotationMark => Self::RIGHT_QUOTATION_MARK,
+            RawCharacter::RightQuotationMark(mark) => mark,
         }
     }
 }
@@ -82,7 +82,10 @@ mod public {
         test_err(':');
         test_err(';');
         let actual = RawCharacter::from('」').unwrap();
-        let expect = RawCharacter::RightQuotationMark;
-        assert_eq!(expect, actual)
+        let expect = RawCharacter::RightQuotationMark("」".to_string());
+        assert_eq!(expect, actual);
+        let actual = RawCharacter::from('』').unwrap();
+        let expect = RawCharacter::RightQuotationMark("』".to_string());
+        assert_eq!(expect, actual);
     }
 }

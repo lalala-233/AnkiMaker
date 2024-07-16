@@ -1,20 +1,21 @@
 [package]
 name = "anki_maker"
-version = "0.5.22"
+version = "0.7.0"
 edition = "2021"
+default-run = "ankimaker"
 
 [dependencies]
-
-clap = { version = "4.4", features = ["derive"] }
-diff = "0.1"
-indicatif = "0.17"
-serde = { version = "1.0", features = ["derive"] }
-toml = "0.8"
-eframe = { version = "0.23", features = [
-    "accesskit",     # (Default) Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
+clap = { version = "4.5.4", features = ["derive"] }
+diff = "0.1.13"
+indicatif = "0.17.8"
+serde = { version = "1.0.202", features = ["derive"] }
+toml = "0.8.13"
+eframe = { version = "0.28.1", features = [
+    "accesskit", # (Default) Make egui comptaible with screen readers. NOTE: adds a lot of dependencies.
     "default_fonts", # (Default) Embed the default egui fonts.
-    "glow",          # (Default) Use the glow rendering backend. Alternative: "wgpu".
-    "persistence",   # Enable restoring app state when restarting the app.
+    "glow", # (Default) Use the glow rendering backend. Alternative: "wgpu".
+    "persistence", # Enable restoring app state when restarting the app.
+
 ], optional = true }
 
 [[bin]]
@@ -23,6 +24,7 @@ name = "ankimaker"
 [[bin]]
 name = "gui"
 path = "./src/bin/gui.rs"
+required-features = ["gui"]
 
 [features]
 gui = ["eframe"]

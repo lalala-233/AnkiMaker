@@ -1,15 +1,15 @@
 use super::{Content, Info};
+use crate::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
-pub struct Config {
+pub struct PoemConfig {
     info: Info,
     content: Content,
 }
-
-impl Config {
-    pub fn generate_with_line(&mut self) -> Result<Vec<String>, String> {
-        let (info, content) = (&mut self.info, &self.content);
+impl Config for PoemConfig {
+    fn generate(self) -> Result<Vec<String>, String> {
+        let (info, content) = (&self.info, &self.content);
         let mut result = Vec::new();
         //header
         result.extend(info.generate_header());
@@ -39,12 +39,13 @@ mod public {
     use super::*;
     #[test]
     pub fn generate_with_line() {
-        let mut config: Config = toml::from_str(
+        let config: PoemConfig = toml::from_str(
             "
 [info]
 author = \"李斯\"
 deck = \"New::语文::挖空\"
-card_template = \"语文::古诗文::挖空\"
+notetype = \"语文::古诗文::挖空\"
+mode = \"poem\"
 title = \"谏逐客书\"
 
 [content]
@@ -59,7 +60,7 @@ paragraph = [
         .unwrap();
         let expect: Vec<String> = vec![
             "#separator:|",
-            "#html:true",
+            "#html:false",
             "#notetype:语文::古诗文::挖空",
             "#deck:New::语文::挖空::谏逐客书",
             "谏逐客书（1-1）|李斯||臣闻吏议逐客，|窃以为过矣。",
@@ -72,15 +73,16 @@ paragraph = [
         .into_iter()
         .map(|str| str.to_string())
         .collect();
-        let actual = config.generate_with_line().unwrap();
+        let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
         // 存在英文句号、英文逗号
-        let mut config_err: Config = toml::from_str(
+        let config_err: PoemConfig = toml::from_str(
             "
 [info]
 author = \"李斯\"
 deck = \"New::语文::挖空\"
-card_template = \"语文::古诗文::挖空\"
+notetype = \"语文::古诗文::挖空\"
+mode = \"poem\"
 title = \"谏逐客书\"
 
 [content]
@@ -93,7 +95,7 @@ paragraph = [
 ",
         )
         .unwrap();
-        let actual = config_err.generate_with_line();
+        let actual = config_err.generate();
         assert!(actual.is_err())
     }
 }
