@@ -34,7 +34,7 @@ impl Info {
             Self::DEFAULT_SEPARATOR
         }
     }
-    pub fn new(notetype: String, deck: String, separator: Option<String>) -> Self {
+    pub fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
         Self {
             notetype,
             deck,

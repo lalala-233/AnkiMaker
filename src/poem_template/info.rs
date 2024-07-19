@@ -1,3 +1,4 @@
+use crate::header::ToHeader;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -9,6 +10,21 @@ pub struct Info {
     author: Option<String>,
     dynasty: Option<String>,
     separator: Option<String>,
+}
+impl ToHeader for Info {
+    fn separator(&self) -> Option<String> {
+        //必然存在，因为不存在时返回默认
+        Some(self.separator().to_string())
+    }
+    fn html(&self) -> Option<String> {
+        Some(false.to_string())
+    }
+    fn notetype(&self) -> Option<String> {
+        Some(self.notetype.clone())
+    }
+    fn deck(&self) -> Option<String> {
+        Some(self.deck.clone())
+    }
 }
 impl Default for Info {
     fn default() -> Self {
@@ -56,7 +72,7 @@ impl Info {
     pub fn title(&self) -> &String {
         &self.title
     }
-    pub fn new(
+    pub fn _new(
         notetype: String,
         deck: String,
         mode: String,
