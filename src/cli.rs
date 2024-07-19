@@ -1,6 +1,4 @@
-use crate::{
-    config::Config, default_template::DefaultConfig, mode::Mode, poem_template::PoemConfig,
-};
+use crate::{config::Config, default_template::DefaultConfig, poem_template::PoemConfig};
 use clap::Parser;
 use indicatif::ProgressIterator;
 use std::{error::Error, fs};
@@ -52,10 +50,16 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
     }
     let content = fs::read_to_string(filename)?;
     let toml: Config = toml::from_str(&content)?;
-    match toml.info.mode.into() {
-        Mode::Default => generate::<DefaultConfig>(filename),
-        Mode::Poem => generate::<PoemConfig>(filename),
-        Mode::Unknown => generate::<DefaultConfig>(filename),
+    match toml.info.mode.as_str() {
+        "default" => generate::<DefaultConfig>(filename),
+        "poem" => generate::<PoemConfig>(filename),
+        mode => {
+            eprintln!(
+                "Warning: Unknown mode {mode} detected in {filename}, using default mode instead."
+            );
+            eprintln!(                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
+            generate::<DefaultConfig>(filename)
+        }
     }
 }
 fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {

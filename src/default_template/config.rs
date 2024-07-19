@@ -47,15 +47,15 @@ the scientific study of the normal functions of living things 生理学
 [uncountable, singular]
 the way in which a particular living thing functions 生理机能\"\"\"]]
 ";
-        let expect =vec![ "#separator:|".to_string(),
-"#html:false".to_string(),
-"#notetype:单面::例句::单词::注释".to_string(),
-"#deck:New::英语::单词".to_string(),
+        let expect =vec![ "#separator:|",
+"#html:false",
+"#notetype:单面::例句::单词::注释",
+"#deck:New::英语::单词",
 "\"Physiology is the study of how living things work.\"|\"physiology\"|\"生理学是研究生物功能的学科。
 [uncountable]
 the scientific study of the normal functions of living things 生理学
 [uncountable, singular]
-the way in which a particular living thing functions 生理机能\"|".to_string(),
+the way in which a particular living thing functions 生理机能\"|",
 ];
 
         let config: DefaultConfig = toml::from_str(file).unwrap();

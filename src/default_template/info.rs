@@ -2,16 +2,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct Info {
-    notetype: String,
     deck: String,
+    mode: String,
+    notetype: String,
     separator: Option<String>,
 }
 impl Default for Info {
     fn default() -> Self {
         let str = "".to_string();
         Self {
-            notetype: str.clone(),
             deck: str.clone(),
+            mode: "default".to_string(),
+            notetype: str.clone(),
             separator: None,
         }
     }
@@ -36,8 +38,9 @@ impl Info {
     }
     pub fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
         Self {
-            notetype,
             deck,
+            mode: Default::default(),
+            notetype,
             separator,
         }
     }

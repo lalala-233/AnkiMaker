@@ -2,7 +2,7 @@
 pub mod app;
 pub mod cli;
 mod config;
+mod content;
 mod default_template;
 mod header;
-mod mode;
 mod poem_template;
