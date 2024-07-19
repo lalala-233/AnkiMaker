@@ -2,8 +2,9 @@
 
 ## 高优先级
 
-- [] 支持 -o 指定生成文件名（注意和 --default 不兼容）
+- [] 将 `Box<dyn Error>` 改为特殊的 Error Type
 - [] 支持 Poem 转 Default
+- [] 支持 -o 指定生成文件名（注意和 --default 不兼容）
 - [] 使用 `html:true`（注意先将换行转换为 `<br>`）
 - [] 支持类标准 txt 文件（使用 Anki 导出的格式）的生成
 - [] 支持多个 toml 生成一个文件

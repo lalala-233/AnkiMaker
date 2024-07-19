@@ -13,6 +13,9 @@ struct AnkiMaker {
     /// Use default template.
     #[arg(long)]
     default: bool,
+    /// Use poem template.
+    #[arg(long)]
+    poem: bool,
     /// Output file name.
     #[arg(short, long)]
     output: Option<String>,
@@ -20,16 +23,20 @@ struct AnkiMaker {
 
 pub fn run() -> Result<(), Box<dyn Error>> {
     let args = AnkiMaker::parse();
-    if args.default {
-        default_file(&args.path)?;
-    } else {
+    match (args.default, args.poem) {
+        (true, true) => Err("err".into()),
+        (true, false) => default_file::<DefaultConfig>(&args.path),
+        (false, true) => default_file::<PoemConfig>(&args.path),
+        (false, false) =>
         // A progress bar appears, but it seems too short to see
-        for filename in args.path.iter().progress() {
-            let content = process_file(filename)?;
-            write_to_file(&format!("{filename}.txt"), &content)?
+        {
+            for filename in args.path.iter().progress() {
+                let content = process_file(filename)?;
+                write_to_file(&format!("{filename}.txt"), &content)?
+            }
+            Ok(())
         }
     }
-    Ok(())
 }
 fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
     fs::write(filename, content)
@@ -62,8 +69,8 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
         }
     }
 }
-fn default_file(filenames: &[String]) -> Result<(), Box<dyn Error>> {
-    let lines = crate::poem_template::PoemConfig::default();
+fn default_file<T: Config>(filenames: &[String]) -> Result<(), Box<dyn Error>> {
+    let lines = T::default();
     let content = toml::to_string(&lines).unwrap();
     for filename in filenames.iter().progress() {
         write_to_file(filename, &content)?
