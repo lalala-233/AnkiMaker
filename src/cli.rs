@@ -1,6 +1,7 @@
 use crate::{config::Config, default_template::DefaultConfig, poem_template::PoemConfig};
 use clap::Parser;
 use indicatif::ProgressIterator;
+use log::warn;
 use std::{error::Error, fs};
 
 #[derive(Parser)]
@@ -24,7 +25,7 @@ struct AnkiMaker {
 pub fn run() -> Result<(), Box<dyn Error>> {
     let args = AnkiMaker::parse();
     match (args.default, args.poem) {
-        (true, true) => Err("err".into()),
+        (true, true) => Err("--default and --poem cannot be used together".into()),
         (true, false) => default_file::<DefaultConfig>(&args.path),
         (false, true) => default_file::<PoemConfig>(&args.path),
         (false, false) =>
@@ -40,7 +41,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
 }
 fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
     fs::write(filename, content)
-        .map_err(|error_info| format!("Error: In {filename}.\nDetails: {error_info}"))?;
+        .map_err(|error_info| format!("In {filename}.\nDetails: {error_info}"))?;
     Ok(())
 }
 fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
@@ -61,10 +62,10 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
         "default" => generate::<DefaultConfig>(filename),
         "poem" => generate::<PoemConfig>(filename),
         mode => {
-            eprintln!(
+            warn!(
                 "Warning: Unknown mode {mode} detected in {filename}, using default mode instead."
             );
-            eprintln!(                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
+            warn!("The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
             generate::<DefaultConfig>(filename)
         }
     }
