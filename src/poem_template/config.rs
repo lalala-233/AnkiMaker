@@ -15,7 +15,7 @@ impl Config for PoemConfig {
         result.extend(info.generate_header());
         let author = &info.generate_author_info();
         let title = info.title();
-        let separator = info.separator();
+        let separator = &info.separator();
         let paragraphs = content.parse_to_line(separator)?;
 
         let mut sum_para = 0;

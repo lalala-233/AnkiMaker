@@ -1,7 +1,7 @@
-use crate::header::ToHeader;
+use crate::header::{Header, ToHeader};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Info {
     notetype: String,
     deck: String,
@@ -12,18 +12,18 @@ pub struct Info {
     separator: Option<String>,
 }
 impl ToHeader for Info {
-    fn separator(&self) -> Option<String> {
-        //必然存在，因为不存在时返回默认
-        Some(self.separator().to_string())
+    fn separator(&self) -> String {
+        if let Some(separator) = self.separator.clone() {
+            separator
+        } else {
+            Self::DEFAULT_SEPARATOR.to_string()
+        }
     }
-    fn html(&self) -> Option<String> {
-        Some(false.to_string())
+    fn notetype(&self) -> String {
+        self.notetype.clone()
     }
-    fn notetype(&self) -> Option<String> {
-        Some(self.notetype.clone())
-    }
-    fn deck(&self) -> Option<String> {
-        Some(self.deck.clone())
+    fn deck(&self) -> String {
+        format!("{}::{}", self.deck, self.title)
     }
 }
 impl Default for Info {
@@ -55,19 +55,10 @@ impl Info {
         author_info
     }
     pub fn generate_header(&self) -> Vec<String> {
-        let mut header = Vec::new();
-        header.push(format!("#separator:{}", self.separator()));
-        header.push("#html:false".to_string());
-        header.push(format!("#notetype:{}", self.notetype));
-        header.push(format!("#deck:{}::{}", self.deck, self.title));
-        header
+        Header::from(self.clone()).generate_header()
     }
-    pub fn separator(&self) -> &str {
-        if let Some(separator) = &self.separator {
-            separator
-        } else {
-            Self::DEFAULT_SEPARATOR
-        }
+    pub fn separator(&self) -> String {
+        <Self as ToHeader>::separator(&self)
     }
     pub fn title(&self) -> &String {
         &self.title
