@@ -17,12 +17,12 @@ impl Config for PoemConfig {
         let title = info.title();
         let separator = &info.separator();
         let paragraph = content.try_parse()?.into_iter();
-        let lines = paragraph.map(|mut text| {
-            let index = text.remove(0);
+        let lines = paragraph.map(|mut texts| {
+            let index = texts.remove(0);
             let title = format!("{}{}", title, index);
-            text.insert(0, title);
-            text.insert(1, author.to_owned());
-            text.join(separator)
+            texts.insert(0, title);
+            texts.insert(1, author.to_owned());
+            texts.join(separator)
         });
         result.extend(lines);
         //result.extend();
