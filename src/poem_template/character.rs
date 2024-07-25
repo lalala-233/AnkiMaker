@@ -6,8 +6,15 @@ pub enum Character {
     Text(String),
 }
 impl std::ops::Deref for Character {
-    type Target = str;
+    type Target = String;
     fn deref(&self) -> &Self::Target {
+        match self {
+            Character::Symbol(content) | Character::Text(content) => content,
+        }
+    }
+}
+impl std::ops::DerefMut for Character {
+    fn deref_mut(&mut self) -> &mut Self::Target {
         match self {
             Character::Symbol(content) | Character::Text(content) => content,
         }

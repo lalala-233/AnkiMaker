@@ -1,3 +1,3 @@
 pub trait ToNotes {
-    fn into_iter(self) -> impl Iterator<Item = Vec<String>>;
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String>;
 }

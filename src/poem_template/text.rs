@@ -1,5 +1,7 @@
 use super::Character;
 use super::RawCharacter;
+use log::warn;
+use std::str::FromStr;
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Text {
     text: Vec<Character>,
@@ -7,31 +9,31 @@ pub struct Text {
 impl Text {
     pub fn push(&mut self, raw_char: RawCharacter) {
         let last = self.text.last_mut();
-        match last {
-            Some(Character::Symbol(last)) => match raw_char {
-                RawCharacter::Symbol(_) | RawCharacter::RightQuotationMark(_) => {
-                    last.push_str(&raw_char)
-                }
-                RawCharacter::Text(_) => self.text.push(raw_char.into()),
-            },
-            Some(Character::Text(last)) => match raw_char {
-                RawCharacter::Symbol(_) => self.text.push(raw_char.into()),
-                RawCharacter::RightQuotationMark(_) | RawCharacter::Text(_) => {
-                    last.push_str(&raw_char)
-                }
-            },
-            None => self.text.push(raw_char.into()),
+        match (last, raw_char.clone()) {
+            (Some(Character::Symbol(last)), RawCharacter::Symbol(second_symbol)) => {
+                warn!("Symbol followed by symbol.");
+                warn!("Try to search {}{} for help.", last, second_symbol);
+                last.push_str(&raw_char);
+            }
+            (None, _)
+            | (Some(Character::Text(_)), RawCharacter::Symbol(_))
+            | (Some(Character::Symbol(_)), RawCharacter::Text(_)) => {
+                self.text.push(raw_char.into())
+            }
+
+            (Some(character), _) => character.push_str(&raw_char),
         }
     }
-    pub fn from(text: &str) -> Result<Text, String> {
+}
+impl FromStr for Text {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut result = Text::default();
-        for symbol in text.chars() {
-            result.push(RawCharacter::from(symbol)?);
+        for symbol in s.chars() {
+            result.push(RawCharacter::try_from(symbol)?);
         }
         Ok(result)
-    }
-    pub fn into_vec_string(self) -> Vec<String> {
-        Vec::from(self)
     }
 }
 impl From<Text> for Vec<String> {
@@ -45,7 +47,7 @@ impl From<Text> for Vec<String> {
                 result.last_mut().unwrap().push_str(&iter.next().unwrap());
             }
             Some(Character::Text(text)) => result.push(text),
-            _ => (), //Just a empty paragraph
+            None => (), //Just a empty paragraph
         }
         for symbol in iter {
             match symbol {
@@ -60,6 +62,7 @@ impl From<Text> for Vec<String> {
 #[cfg(test)]
 mod public {
     use super::{Character, RawCharacter, Text};
+    use std::str::FromStr;
     #[test]
     pub fn from() {
         let tests = (
@@ -85,9 +88,9 @@ mod public {
             Err(",".to_string()),
         );
         let actual = (
-            Text::from(&tests.0).unwrap(),
-            Text::from(&tests.1).unwrap(),
-            Text::from(&tests.2),
+            Text::from_str(&tests.0).unwrap(),
+            Text::from_str(&tests.1).unwrap(),
+            Text::from_str(&tests.2),
         );
         assert_eq!(expect, actual)
     }
@@ -110,12 +113,12 @@ mod public {
             ],
         );
         let actual = (
-            Text::from("「你爱我，我爱你，蜜雪冰城甜蜜蜜！」")
+            Text::from_str("「你爱我，我爱你，蜜雪冰城甜蜜蜜！」")
                 .unwrap()
-                .into_vec_string(),
-            Text::from("你爱我，我爱你，蜜雪冰城甜蜜蜜！")
+                .into(),
+            Text::from_str("你爱我，我爱你，蜜雪冰城甜蜜蜜！")
                 .unwrap()
-                .into_vec_string(),
+                .into(),
         );
 
         assert_eq!(expect, actual)

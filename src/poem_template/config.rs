@@ -9,31 +9,26 @@ pub struct PoemConfig {
 }
 impl Config for PoemConfig {
     fn generate(self) -> Result<Vec<String>, String> {
-        let (info, content) = (&self.info, &self.content);
+        let Self { info, content } = self;
         let mut result = Vec::new();
         //header
         result.extend(info.generate_header());
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = &info.separator();
-        let paragraphs = content.parse_to_line(separator)?;
-
-        let mut sum_para = 0;
-        let mut sum_line = 0;
-        result.extend(paragraphs.into_iter().flat_map(|paragraph| {
-            sum_para += 1;
-            paragraph.into_iter().map(move |line| {
-                sum_line += 1;
-                format!(
-                    "{}（{}-{}）{separator}{}{separator}{}",
-                    title, sum_para, sum_line, author, line
-                )
-            })
-        }));
+        let paragraph = content.try_parse()?.into_iter();
+        let lines = paragraph.map(|mut text| {
+            let index = text.remove(0);
+            let title = format!("{}{}", title, index);
+            text.insert(0, title);
+            text.insert(1, author.to_owned());
+            text.join(&separator)
+        });
+        result.extend(lines);
+        //result.extend();
         Ok(result)
     }
 }
-
 #[cfg(test)]
 mod public {
     use super::*;

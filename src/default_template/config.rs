@@ -9,7 +9,7 @@ pub struct DefaultConfig {
 }
 
 impl Config for DefaultConfig {
-    fn generate(self) -> Result<Vec<std::string::String>, std::string::String> {
+    fn generate(self) -> Result<Vec<String>, String> {
         let separator = self.info.separator();
         let paragraph = self.content.into_iter();
         let mut result = Vec::new();

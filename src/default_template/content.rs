@@ -11,9 +11,9 @@ impl Content {
         let length = self.paragraph.first().unwrap().len();
         self.paragraph.into_iter().map(move |text| {
             if text.len() != length {
-                error!("All lines must have the same number of elements");
-                error!("Error at: {:?}", text);
-                panic!("All lines must have the same number of elements");
+                error!("All lines must have the same number of elements.");
+                error!("Error at: {:?}.", text);
+                panic!("All lines must have the same number of elements.");
             }
             text
         })
@@ -25,8 +25,8 @@ impl Content {
     }
 }
 impl ToNotes for Content {
-    fn into_iter(self) -> impl Iterator<Item = Vec<String>> {
-        self.into_iter()
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
+        Ok(self.into_iter())
     }
 }
 

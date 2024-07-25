@@ -5,19 +5,23 @@ pub enum RawCharacter {
     RightQuotationMark(String),
 }
 impl RawCharacter {
-    const PASSED_CHARACTER: &'static [char] = &['！', '：', '；', '，', '。', '？'];
+    const PASSED_SYMBOL: &'static [char] = &['！', '：', '；', '，', '。', '？'];
     const RIGHT_QUOTATION_MARK: &'static [char] = &['」', '』'];
-    pub fn from(character: char) -> Result<RawCharacter, String> {
+}
+impl TryFrom<char> for RawCharacter {
+    type Error = String;
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
         let is_error_char = |character: char| {
             character.is_ascii_graphic()
                 || character.is_whitespace()
                 || matches!(character, '‘' | '’' | '“' | '”')
         };
-        if is_error_char(character) {
-            return Err(format!("{character}"));
+        if is_error_char(value) {
+            return Err(format!("{value}"));
         }
-        let symbol = character.to_string();
-        if symbol.contains(Self::PASSED_CHARACTER) {
+        let symbol = value.to_string();
+        if symbol.contains(Self::PASSED_SYMBOL) {
             return Ok(Self::Symbol(symbol));
         }
         if symbol.contains(Self::RIGHT_QUOTATION_MARK) {
@@ -48,19 +52,19 @@ impl std::ops::Deref for RawCharacter {
 mod public {
     use super::RawCharacter;
     #[test]
-    pub fn from() {
-        let test_symbol = |char| {
-            let actual = RawCharacter::from(char).unwrap();
+    pub fn try_from() {
+        let test_symbol = |char: char| {
+            let actual = RawCharacter::try_from(char).unwrap();
             let expect = RawCharacter::Symbol(char.to_string());
             assert_eq!(expect, actual)
         };
-        let test_text = |char| {
-            let actual = RawCharacter::from(char).unwrap();
+        let test_text = |char: char| {
+            let actual = RawCharacter::try_from(char).unwrap();
             let expect = RawCharacter::Text(char.to_string());
             assert_eq!(expect, actual)
         };
-        let test_err = |char| {
-            let actual = RawCharacter::from(char);
+        let test_err = |char: char| {
+            let actual = RawCharacter::try_from(char);
             let expect = Err(char.to_string());
             assert_eq!(expect, actual)
         };
@@ -81,10 +85,10 @@ mod public {
         test_err('8');
         test_err(':');
         test_err(';');
-        let actual = RawCharacter::from('」').unwrap();
+        let actual = RawCharacter::try_from('」').unwrap();
         let expect = RawCharacter::RightQuotationMark("」".to_string());
         assert_eq!(expect, actual);
-        let actual = RawCharacter::from('』').unwrap();
+        let actual = RawCharacter::try_from('』').unwrap();
         let expect = RawCharacter::RightQuotationMark("』".to_string());
         assert_eq!(expect, actual);
     }
