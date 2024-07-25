@@ -29,24 +29,20 @@ AnkiMaker 是一个为 [Anki](https://apps.ankiweb.net/) 生成抽认卡的工�
 使用以下命令运行 AnkiMaker：
 
 ```shell
-cargo r --bin ankimaker --release <FILE_PATH>...
+cargo r --release -- <PATH>...
 ```
 
 例如，如果您想从 `file1.toml` 和 `file2.toml` 中生成卡片，可以运行:
 
 ```shell
-cargo r --bin ankimaker --release file1.toml file2.toml
+cargo r --release -- file1.toml file2.toml
 ```
 
-你也可以使用 `default` 参数来生成一个 `default.toml` 文件:
+你也可以使用 `--default` 参数来生成一个 `default.toml` 文件:
 
 ```shell
-cargo r --bin ankimaker --release default
+cargo r --release -- --default default.toml
 ```
-
-## 待办事项
-
-- [] 实现一个 GUI
 
 ## 贡献
 

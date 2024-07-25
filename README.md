@@ -27,24 +27,20 @@ Please make sure you are using the latest version of Anki to import the flashcar
 To use AnkiMaker, run the following command:
 
 ```shell
-cargo r --bin ankimaker --release <FILE_PATH>...
+cargo r --release -- <PATH>...
 ```
 
 For example, if you want to generate flashcards from file1.toml and file2.toml, run:
 
 ```shell
-cargo r --bin ankimaker --release file1.toml file2.toml
+cargo r --release -- file1.toml file2.toml
 ```
 
-You can also use the `default` argument to generate a `default.toml` file:
+You can also use the `--default` argument to generate a `default.toml` file:
 
 ```shell
-cargo r --bin ankimaker --release default
+cargo r --release -- --default default.toml
 ```
-
-## Todo
-
-- [] Implement a GUI
 
 ## Contributing
 
