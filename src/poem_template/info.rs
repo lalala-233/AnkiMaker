@@ -1,4 +1,4 @@
-use crate::header::{Header, ToHeader};
+use crate::header::{SingleFileHeader, ToHeader};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -55,7 +55,7 @@ impl Info {
         author_info
     }
     pub fn generate_header(&self) -> Vec<String> {
-        Header::from(self.clone()).generate_header()
+        SingleFileHeader::from(self.clone()).generate_header()
     }
     pub fn separator(&self) -> String {
         <Self as ToHeader>::separator(self)
