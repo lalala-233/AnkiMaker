@@ -22,7 +22,7 @@ impl Config for PoemConfig {
             let title = format!("{}{}", title, index);
             text.insert(0, title);
             text.insert(1, author.to_owned());
-            text.join(&separator)
+            text.join(separator)
         });
         result.extend(lines);
         //result.extend();

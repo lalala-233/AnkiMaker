@@ -20,7 +20,7 @@ impl Content {
     }
     pub fn _new(paragraph: Vec<Vec<String>>) -> Self {
         Self {
-            paragraph: paragraph.into_iter().map(|text| text.into()).collect(),
+            paragraph: paragraph.into_iter().collect(),
         }
     }
 }
@@ -53,7 +53,7 @@ mod public {
         let content = Content {
             paragraph: expect
                 .iter()
-                .map(|text| text.into_iter().map(|str| str.to_string()).collect())
+                .map(|text| text.iter().map(|str| str.to_string()).collect())
                 .collect(),
         };
         let actual: Vec<_> = content.into_iter().collect();
@@ -80,7 +80,7 @@ mod public {
         let content = Content {
             paragraph: expect
                 .iter()
-                .map(|text| text.into_iter().map(|str| str.to_string()).collect())
+                .map(|text| text.iter().map(|str| str.to_string()).collect())
                 .collect(),
         };
         let actual: Vec<_> = content.into_iter().collect();

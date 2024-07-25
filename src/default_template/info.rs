@@ -40,7 +40,7 @@ impl Info {
         Header::from(self.clone()).generate_header()
     }
     pub fn separator(&self) -> String {
-        <Self as ToHeader>::separator(&self)
+        <Self as ToHeader>::separator(self)
     }
     pub fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
         Self {

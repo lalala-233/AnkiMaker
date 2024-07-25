@@ -30,13 +30,18 @@ impl TryFrom<char> for RawCharacter {
         Ok(Self::Text(symbol.to_string()))
     }
 }
-impl ToString for RawCharacter {
-    fn to_string(&self) -> String {
-        match self {
-            RawCharacter::Symbol(symbol) => symbol.to_string(),
-            RawCharacter::Text(text) => text.to_string(),
-            RawCharacter::RightQuotationMark(mark) => mark.to_string(),
-        }
+impl std::fmt::Display for RawCharacter {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use RawCharacter::*;
+        write!(
+            f,
+            "{}",
+            match self {
+                Symbol(content) | Text(content) | RightQuotationMark(content) => {
+                    content
+                }
+            }
+        )
     }
 }
 impl std::ops::Deref for RawCharacter {
