@@ -1,4 +1,5 @@
-mod headers;
+pub mod headers;
+pub use headers::Headers;
 
 #[derive(Default)]
 pub struct SingleFileHeader {
@@ -27,8 +28,8 @@ pub trait ToHeader {
     fn notetype(&self) -> String;
     fn deck(&self) -> String;
 }
-impl<T: ToHeader> From<T> for SingleFileHeader {
-    fn from(value: T) -> Self {
+impl<T: ToHeader> From<&T> for SingleFileHeader {
+    fn from(value: &T) -> Self {
         SingleFileHeader {
             separator: value.separator(),
             html: value.html(),

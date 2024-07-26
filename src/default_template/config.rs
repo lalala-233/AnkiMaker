@@ -1,8 +1,12 @@
 use super::{Content, Info};
-use crate::{config::Config, notes::ToNotes};
+use crate::{
+    config::Config,
+    header::{SingleFileHeader, ToHeader},
+    notes::ToNotes,
+};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub struct DefaultConfig {
     info: Info,
     content: Content,
@@ -12,12 +16,24 @@ impl ToNotes for DefaultConfig {
         Ok(self.content.into_iter())
     }
 }
+impl ToHeader for DefaultConfig {
+    fn notetype(&self) -> String {
+        self.info.notetype()
+    }
+    fn deck(&self) -> String {
+        self.info.deck()
+    }
+    fn separator(&self) -> String {
+        self.info.separator()
+    }
+}
 impl Config for DefaultConfig {
     fn generate(self) -> Result<Vec<String>, String> {
+        let mut result = Vec::new();
+        let header = SingleFileHeader::from(&self).generate_header();
+        result.extend(header);
         let separator = self.info.separator();
         let paragraph = self.content.into_iter();
-        let mut result = Vec::new();
-        result.extend(self.info.generate_header());
         let lines = paragraph.map(|texts| {
             let vec = texts
                 .into_iter()

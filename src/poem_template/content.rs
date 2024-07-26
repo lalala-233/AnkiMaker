@@ -1,7 +1,7 @@
 use super::Text;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub struct Content {
     paragraph: Vec<String>,
 }

@@ -1,18 +1,33 @@
 use super::{Content, Info};
-use crate::{config::Config, notes::ToNotes};
+use crate::{
+    config::Config,
+    header::{SingleFileHeader, ToHeader},
+    notes::ToNotes,
+};
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub struct PoemConfig {
     info: Info,
     content: Content,
 }
+impl ToHeader for PoemConfig {
+    fn notetype(&self) -> String {
+        self.info.notetype()
+    }
+    fn deck(&self) -> String {
+        self.info.deck()
+    }
+    fn separator(&self) -> String {
+        "|".to_string()
+    }
+}
 impl Config for PoemConfig {
     fn generate(self) -> Result<Vec<String>, String> {
-        let Self { info, content } = self;
         let mut result = Vec::new();
-        //header
-        result.extend(info.generate_header());
+        let header = SingleFileHeader::from(&self).generate_header();
+        result.extend(header);
+        let Self { info, content } = self;
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = &info.separator();
@@ -48,7 +63,7 @@ impl ToNotes for PoemConfig {
 mod public {
     use super::*;
     #[test]
-    pub fn generate_with_line() {
+    pub fn generate() {
         let config: PoemConfig = toml::from_str(
             "
 [info]

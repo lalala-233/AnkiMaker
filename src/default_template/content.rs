@@ -1,7 +1,7 @@
 use log::error;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub struct Content {
     paragraph: Vec<Vec<String>>,
 }

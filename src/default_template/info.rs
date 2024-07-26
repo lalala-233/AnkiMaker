@@ -1,4 +1,3 @@
-use crate::header::{SingleFileHeader, ToHeader};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -8,17 +7,7 @@ pub struct Info {
     notetype: String,
     separator: Option<String>,
 }
-impl ToHeader for Info {
-    fn separator(&self) -> String {
-        self.separator.clone().unwrap_or("|".to_string())
-    }
-    fn notetype(&self) -> String {
-        self.notetype.clone()
-    }
-    fn deck(&self) -> String {
-        self.deck.clone()
-    }
-}
+
 impl Default for Info {
     fn default() -> Self {
         let str = "".to_string();
@@ -31,11 +20,14 @@ impl Default for Info {
     }
 }
 impl Info {
-    pub fn generate_header(&self) -> Vec<String> {
-        SingleFileHeader::from(self.clone()).generate_header()
+    pub fn deck(&self) -> String {
+        self.deck.clone()
+    }
+    pub fn notetype(&self) -> String {
+        self.notetype.clone()
     }
     pub fn separator(&self) -> String {
-        <Self as ToHeader>::separator(self)
+        self.separator.clone().unwrap_or("|".to_string())
     }
     pub fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
         Self {

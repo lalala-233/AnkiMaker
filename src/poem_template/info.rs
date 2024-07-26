@@ -1,4 +1,3 @@
-use crate::header::{SingleFileHeader, ToHeader};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -10,17 +9,6 @@ pub struct Info {
     author: Option<String>,
     dynasty: Option<String>,
     separator: Option<String>,
-}
-impl ToHeader for Info {
-    fn separator(&self) -> String {
-        self.separator.clone().unwrap_or("|".to_string())
-    }
-    fn notetype(&self) -> String {
-        self.notetype.clone()
-    }
-    fn deck(&self) -> String {
-        format!("{}::{}", self.deck, self.title)
-    }
 }
 impl Default for Info {
     fn default() -> Self {
@@ -38,6 +26,12 @@ impl Default for Info {
     }
 }
 impl Info {
+    pub fn notetype(&self) -> String {
+        self.notetype.clone()
+    }
+    pub fn deck(&self) -> String {
+        format!("{}::{}", self.deck, self.title)
+    }
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
@@ -49,11 +43,8 @@ impl Info {
         }
         author_info
     }
-    pub fn generate_header(&self) -> Vec<String> {
-        SingleFileHeader::from(self.clone()).generate_header()
-    }
     pub fn separator(&self) -> String {
-        <Self as ToHeader>::separator(self)
+        self.separator.clone().unwrap_or("|".to_string())
     }
     pub fn title(&self) -> &String {
         &self.title
@@ -129,28 +120,6 @@ mod public {
         };
         let expect = String::new();
         let actual = info.generate_author_info();
-        assert_eq!(expect, actual);
-    }
-    #[test]
-    pub fn generate_header() {
-        let (notetype, _deck, _title, _author, _dynasty, separator, info) = default();
-        let mut expect = vec![
-            format!("#separator:{}", separator.unwrap()),
-            "#html:false".to_string(),
-            format!("#notetype:{}", &notetype),
-            "#deck:New::语文::我真的好帅".to_string(),
-        ];
-        let actual = info.generate_header();
-        assert_eq!(expect, actual);
-        //no Option
-        let info = Info {
-            author: None,
-            dynasty: None,
-            separator: None,
-            ..info
-        };
-        expect[0] = format!("#separator:{}", DEFAULT_SEPARATOR);
-        let actual = info.generate_header();
         assert_eq!(expect, actual);
     }
     #[test]
