@@ -1,4 +1,3 @@
-use crate::content::ToNotes;
 use log::error;
 use serde::{Deserialize, Serialize};
 
@@ -22,11 +21,6 @@ impl Content {
         Self {
             paragraph: paragraph.into_iter().collect(),
         }
-    }
-}
-impl ToNotes for Content {
-    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
-        Ok(self.into_iter())
     }
 }
 

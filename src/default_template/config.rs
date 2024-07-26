@@ -1,5 +1,5 @@
 use super::{Content, Info};
-use crate::config::Config;
+use crate::{config::Config, notes::ToNotes};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
@@ -7,7 +7,11 @@ pub struct DefaultConfig {
     info: Info,
     content: Content,
 }
-
+impl ToNotes for DefaultConfig {
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
+        Ok(self.content.into_iter())
+    }
+}
 impl Config for DefaultConfig {
     fn generate(self) -> Result<Vec<String>, String> {
         let separator = self.info.separator();

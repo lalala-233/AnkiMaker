@@ -13,11 +13,7 @@ pub struct Info {
 }
 impl ToHeader for Info {
     fn separator(&self) -> String {
-        if let Some(separator) = self.separator.clone() {
-            separator
-        } else {
-            Self::DEFAULT_SEPARATOR.to_string()
-        }
+        self.separator.clone().unwrap_or("|".to_string())
     }
     fn notetype(&self) -> String {
         self.notetype.clone()
@@ -42,7 +38,6 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: &'static str = "|";
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
@@ -88,6 +83,7 @@ impl Info {
 mod public {
     use super::Info;
     use default::default;
+    const DEFAULT_SEPARATOR: &str = "|";
     pub mod default {
         use super::Info;
         pub fn default() -> (
@@ -153,7 +149,7 @@ mod public {
             separator: None,
             ..info
         };
-        expect[0] = format!("#separator:{}", Info::DEFAULT_SEPARATOR);
+        expect[0] = format!("#separator:{}", DEFAULT_SEPARATOR);
         let actual = info.generate_header();
         assert_eq!(expect, actual);
     }
@@ -186,7 +182,7 @@ mod public {
             separator: None,
             ..info
         };
-        let expect = Info::DEFAULT_SEPARATOR;
+        let expect = DEFAULT_SEPARATOR;
         let actual = info.separator();
         assert_eq!(expect, actual);
     }

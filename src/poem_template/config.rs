@@ -1,5 +1,5 @@
 use super::{Content, Info};
-use crate::config::Config;
+use crate::{config::Config, notes::ToNotes};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default)]
@@ -16,8 +16,8 @@ impl Config for PoemConfig {
         let author = &info.generate_author_info();
         let title = info.title();
         let separator = &info.separator();
-        let paragraph = content.try_parse()?.into_iter();
-        let lines = paragraph.map(|mut texts| {
+        let iter = content.try_into_iter()?;
+        let lines = iter.map(|mut texts| {
             let index = texts.remove(0);
             let title = format!("{}{}", title, index);
             texts.insert(0, title);
@@ -27,6 +27,21 @@ impl Config for PoemConfig {
         result.extend(lines);
         //result.extend();
         Ok(result)
+    }
+}
+impl ToNotes for PoemConfig {
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
+        let Self { info, content } = self;
+        let author = info.generate_author_info();
+        let title = info.title().clone();
+        let iter = content.try_into_iter()?.map(move |mut texts| {
+            let index = texts.remove(0);
+            let title = format!("{}{}", title, index);
+            texts.insert(0, title);
+            texts.insert(1, author.to_owned());
+            texts
+        });
+        Ok(iter)
     }
 }
 #[cfg(test)]

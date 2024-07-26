@@ -10,11 +10,7 @@ pub struct Info {
 }
 impl ToHeader for Info {
     fn separator(&self) -> String {
-        if let Some(separator) = self.separator.clone() {
-            separator
-        } else {
-            Self::DEFAULT_SEPARATOR.to_string()
-        }
+        self.separator.clone().unwrap_or("|".to_string())
     }
     fn notetype(&self) -> String {
         self.notetype.clone()
@@ -35,7 +31,6 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: &'static str = "|";
     pub fn generate_header(&self) -> Vec<String> {
         SingleFileHeader::from(self.clone()).generate_header()
     }
