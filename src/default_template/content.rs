@@ -77,7 +77,7 @@ mod public {
                 .map(|text| text.iter().map(|str| str.to_string()).collect())
                 .collect(),
         };
-        let actual: Vec<_> = content.into_iter().collect();
+        let actual: Vec<_> = content.into_iter().collect();//will panic
         assert_eq!(expect, actual)
     }
 }

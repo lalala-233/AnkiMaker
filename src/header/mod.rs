@@ -30,7 +30,7 @@ pub trait ToHeader {
 }
 impl<T: ToHeader> From<&T> for SingleFileHeader {
     fn from(value: &T) -> Self {
-        SingleFileHeader {
+        Self {
             separator: value.separator(),
             html: value.html(),
             notetype: value.notetype(),

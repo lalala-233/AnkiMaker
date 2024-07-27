@@ -19,7 +19,7 @@ impl ToHeader for PoemConfig {
         self.info.deck()
     }
     fn separator(&self) -> String {
-        "|".to_string()
+        self.info.separator()
     }
 }
 impl Config for PoemConfig {
@@ -27,19 +27,9 @@ impl Config for PoemConfig {
         let mut result = Vec::new();
         let header = SingleFileHeader::from(&self).generate_header();
         result.extend(header);
-        let Self { info, content } = self;
-        let author = &info.generate_author_info();
-        let title = info.title();
-        let separator = &info.separator();
-        let iter = content.try_into_iter()?;
-        let lines = iter.map(|mut texts| {
-            let index = texts.remove(0);
-            let title = format!("{}{}", title, index);
-            texts.insert(0, title);
-            texts.insert(1, author.to_owned());
-            texts.join(separator)
-        });
-        result.extend(lines);
+        let separator = self.separator();
+        let iter = self.try_into_iter()?.map(|texts| texts.join(&separator));
+        result.extend(iter);
         //result.extend();
         Ok(result)
     }
