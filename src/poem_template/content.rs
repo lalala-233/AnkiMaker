@@ -34,7 +34,7 @@ impl Content {
             texts.push(
                 Text::from_str(text)
                     .map_err(|unexpected_symbol| {
-                        format!("unexpected symbol `{unexpected_symbol}` in the file")
+                        format!("unexpected symbol `{unexpected_symbol}` in the file.")
                     })?
                     .into(),
             )
@@ -83,7 +83,7 @@ mod public {
             "某人:「你好,我好，大家好！不是吗?」".to_string(),
             "哦，是的。我不是!".to_string(),
         ];
-        let expect = "unexpected symbol `:` in the file".to_string();
+        let expect = "unexpected symbol `:` in the file.".to_string();
         let actual = Content { paragraph }
             .try_into_iter()
             .is_err_and(|error_info| expect == error_info);
@@ -111,7 +111,7 @@ mod private {
             "哦，是的.我不是！".to_string(),
             "某人：你好,我好，大家好！不是吗？".to_string(),
         ];
-        let expect = Err("unexpected symbol `.` in the file".to_string());
+        let expect = Err("unexpected symbol `.` in the file.".to_string());
         let actual = Content { paragraph }.try_get_texts();
         assert_eq!(expect, actual)
     }

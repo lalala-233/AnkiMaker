@@ -12,6 +12,23 @@ impl std::ops::Add for Notes {
         Self { notes, headers }
     }
 }
+impl Notes {
+    /// May panic!()
+    pub fn generate(self) -> Vec<String> {
+        let headers = self.headers;
+        let mut result = headers.generate_header();
+        let separator = headers.separator();
+        let lines = self.notes.map(|texts| {
+            let vec = texts
+                .into_iter()
+                .map(|text| format!("\"{}\"", text))
+                .collect::<Vec<_>>();
+            vec.join(&separator)
+        });
+        result.extend(lines);
+        result
+    }
+}
 pub trait ToNotes: ToHeader + 'static {
     fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String>;
     fn try_get_notes(self) -> Result<Notes, String>
@@ -23,8 +40,9 @@ pub trait ToNotes: ToHeader + 'static {
         let deck = self.deck();
         let iter = self.try_into_iter()?;
         let result = iter.map(move |mut text| {
-            text.insert(0, notetype.clone());
-            text.insert(1, deck.clone());
+            text.insert(0, deck.clone());
+            text.insert(1, notetype.clone());
+            insert_tags(&mut text);
             text
         });
         Ok(Notes {
@@ -32,4 +50,9 @@ pub trait ToNotes: ToHeader + 'static {
             headers,
         })
     }
+}
+// Not yet implemented
+fn insert_tags(text: &mut Vec<String>) {
+    let tags = "".to_string();
+    text.insert(0, tags)
 }

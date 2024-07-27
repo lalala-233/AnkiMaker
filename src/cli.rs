@@ -1,4 +1,9 @@
-use crate::{config::Config, default_template::DefaultConfig, poem_template::PoemConfig};
+use crate::{
+    config::Config,
+    default_template::DefaultConfig,
+    notes::{Notes, ToNotes},
+    poem_template::PoemConfig,
+};
 use clap::Parser;
 use indicatif::ProgressIterator;
 use log::warn;
@@ -29,10 +34,16 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         // A progress bar appears, but it seems too short to see
         {
             if let Some(filename) = args.output {
-                todo!()
+                let mut filenames = args.path.into_iter().progress();
+                let mut notes = try_get_notes(&filenames.next().unwrap())?;
+                for filename in filenames {
+                    notes = notes + try_get_notes(&filename)?;
+                }
+                let content = notes.generate().join("\n");
+                write_to_file(&filename, &content)?
             } else {
-                for filename in args.path.iter().progress() {
-                    let content = process_file(filename)?;
+                for filename in args.path.into_iter().progress() {
+                    let content = process_file(&filename)?;
                     write_to_file(&format!("{filename}.txt"), &content)?
                 }
             }
@@ -40,7 +51,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         }
         (true, false) => default_file::<DefaultConfig>(&args.path, args.output),
         (false, true) => default_file::<PoemConfig>(&args.path, args.output),
-        (true, true) => Err("--default and --poem cannot be used together")?,
+        (true, true) => Err("--default and --poem cannot be used together.")?,
     }
 }
 fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
@@ -54,9 +65,7 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
         "default" => generate::<DefaultConfig>(filename),
         "poem" => generate::<PoemConfig>(filename),
         mode => {
-            warn!(
-                "Warning: Unknown mode {mode} detected in {filename}, using default mode instead."
-            );
+            warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
             warn!("The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
             generate::<DefaultConfig>(filename)
         }
@@ -68,7 +77,7 @@ fn default_file<T: Config>(
 ) -> Result<(), Box<dyn Error>> {
     let lines = T::default();
     match output {
-        Some(filename) if filename.len() == 1 => {
+        Some(filename) if filenames.len() == 1 => {
             warn!("Using --output when using --default or --poem is not recommended.");
             let content = toml::to_string(&lines).unwrap();
             write_to_file(&filename, &content)?
@@ -88,14 +97,7 @@ fn default_file<T: Config>(
 fn generate<T: Config>(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: T = toml::from_str(&content)?;
-    let content: String = toml
-        .generate()?
-        .into_iter()
-        .fold(String::new(), |mut output, line| {
-            use std::fmt::Write;
-            let _ = writeln!(output, "{}", line);
-            output
-        });
+    let content: String = toml.generate()?.join("\n");
     Ok(content)
 }
 fn try_detect_mode(filename: &str) -> Result<String, Box<dyn Error>> {
@@ -111,4 +113,25 @@ fn try_detect_mode(filename: &str) -> Result<String, Box<dyn Error>> {
     let content = fs::read_to_string(filename)?;
     let toml: Config = toml::from_str(&content)?;
     Ok(toml.info.mode)
+}
+fn try_get_notes(filename: &str) -> Result<Notes, Box<dyn Error>> {
+    let content = fs::read_to_string(filename)?;
+    let mode = try_detect_mode(filename)?;
+    let notes = match mode.as_str() {
+        "default" => {
+            let toml: DefaultConfig = toml::from_str(&content)?;
+            toml.try_get_notes()
+        }
+        "poem" => {
+            let toml: PoemConfig = toml::from_str(&content)?;
+            toml.try_get_notes()
+        }
+        mode => {
+            warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
+            warn!("The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
+            let toml: DefaultConfig = toml::from_str(&content)?;
+            toml.try_get_notes()
+        }
+    }?;
+    Ok(notes)
 }
