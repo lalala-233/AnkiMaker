@@ -18,7 +18,7 @@ impl TryFrom<char> for RawCharacter {
                 || matches!(character, '‘' | '’' | '“' | '”')
         };
         if is_error_char(value) {
-            return Err(format!("{value}"));
+            return Err(format!("{value}"))?;
         }
         let symbol = value.to_string();
         if symbol.contains(Self::PASSED_SYMBOL) {
