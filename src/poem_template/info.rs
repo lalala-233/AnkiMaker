@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Info {
     notetype: String,
     deck: String,
@@ -26,7 +26,12 @@ impl Default for Info {
     }
 }
 impl Info {
-    const DEFAULT_SEPARATOR: &'static str = "|";
+    pub fn notetype(&self) -> String {
+        self.notetype.clone()
+    }
+    pub fn deck(&self) -> String {
+        format!("{}::{}", self.deck, self.title)
+    }
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
@@ -38,25 +43,13 @@ impl Info {
         }
         author_info
     }
-    pub fn generate_header(&self) -> Vec<String> {
-        let mut header = Vec::new();
-        header.push(format!("#separator:{}", self.separator()));
-        header.push("#html:false".to_string());
-        header.push(format!("#notetype:{}", self.notetype));
-        header.push(format!("#deck:{}::{}", self.deck, self.title));
-        header
-    }
-    pub fn separator(&self) -> &str {
-        if let Some(separator) = &self.separator {
-            separator
-        } else {
-            Self::DEFAULT_SEPARATOR
-        }
+    pub fn separator(&self) -> String {
+        self.separator.clone().unwrap_or("|".to_string())
     }
     pub fn title(&self) -> &String {
         &self.title
     }
-    pub fn new(
+    pub fn _new(
         notetype: String,
         deck: String,
         mode: String,
@@ -81,6 +74,7 @@ impl Info {
 mod public {
     use super::Info;
     use default::default;
+    const DEFAULT_SEPARATOR: &str = "|";
     pub mod default {
         use super::Info;
         pub fn default() -> (
@@ -129,28 +123,6 @@ mod public {
         assert_eq!(expect, actual);
     }
     #[test]
-    pub fn generate_header() {
-        let (notetype, _deck, _title, _author, _dynasty, separator, info) = default();
-        let mut expect = vec![
-            format!("#separator:{}", separator.unwrap()),
-            "#html:false".to_string(),
-            format!("#notetype:{}", &notetype),
-            "#deck:New::语文::我真的好帅".to_string(),
-        ];
-        let actual = info.generate_header();
-        assert_eq!(expect, actual);
-        //no Option
-        let info = Info {
-            author: None,
-            dynasty: None,
-            separator: None,
-            ..info
-        };
-        expect[0] = format!("#separator:{}", Info::DEFAULT_SEPARATOR);
-        let actual = info.generate_header();
-        assert_eq!(expect, actual);
-    }
-    #[test]
     pub fn title() {
         let (_notetype, _deck, title, _author, _dynasty, _separator, info) = default();
         let expect = &title;
@@ -179,7 +151,7 @@ mod public {
             separator: None,
             ..info
         };
-        let expect = Info::DEFAULT_SEPARATOR;
+        let expect = DEFAULT_SEPARATOR;
         let actual = info.separator();
         assert_eq!(expect, actual);
     }

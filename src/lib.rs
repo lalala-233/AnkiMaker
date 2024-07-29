@@ -3,6 +3,6 @@ pub mod app;
 pub mod cli;
 mod config;
 mod default_template;
-mod mode;
+mod header;
+mod notes;
 mod poem_template;
-mod root_info;
