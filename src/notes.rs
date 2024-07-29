@@ -7,8 +7,13 @@ impl std::ops::Add for Notes {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
+        let notes = if self.headers.len() >= rhs.headers.len() {
+            Box::new(self.notes.chain(rhs.notes))
+        } else {
+            Box::new(rhs.notes.chain(self.notes))
+        };
         let headers = self.headers + rhs.headers;
-        let notes = Box::new(self.notes.chain(rhs.notes));
+
         Self { notes, headers }
     }
 }
@@ -42,7 +47,6 @@ pub trait ToNotes: ToHeader + 'static {
         let result = iter.map(move |mut text| {
             text.insert(0, deck.clone());
             text.insert(1, notetype.clone());
-            insert_tags(&mut text);
             text
         });
         Ok(Notes {
@@ -50,9 +54,4 @@ pub trait ToNotes: ToHeader + 'static {
             headers,
         })
     }
-}
-// Not yet implemented
-fn insert_tags(text: &mut Vec<String>) {
-    let tags = "".to_string();
-    text.insert(0, tags)
 }

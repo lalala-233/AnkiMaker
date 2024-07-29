@@ -19,6 +19,7 @@ impl SingleFileHeader {
     }
 }
 pub trait ToHeader {
+    fn len(&self) -> usize;
     fn separator(&self) -> String {
         "|".to_string()
     }

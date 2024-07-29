@@ -21,6 +21,9 @@ impl ToHeader for PoemConfig {
     fn separator(&self) -> String {
         self.info.separator()
     }
+    fn len(&self) -> usize {
+        5
+    }
 }
 impl Config for PoemConfig {
     fn generate(self) -> Result<Vec<String>, String> {

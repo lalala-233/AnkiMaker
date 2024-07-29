@@ -6,8 +6,11 @@ pub struct Content {
     paragraph: Vec<Vec<String>>,
 }
 impl Content {
+    pub fn len(&self) -> usize {
+        self.paragraph.first().unwrap().len()
+    }
     pub fn into_iter(self) -> impl Iterator<Item = Vec<String>> {
-        let length = self.paragraph.first().unwrap().len();
+        let length = self.len();
         self.paragraph.into_iter().map(move |text| {
             if text.len() != length {
                 error!("All lines must have the same number of elements.");
@@ -77,7 +80,7 @@ mod public {
                 .map(|text| text.iter().map(|str| str.to_string()).collect())
                 .collect(),
         };
-        let actual: Vec<_> = content.into_iter().collect();//will panic
+        let actual: Vec<_> = content.into_iter().collect(); //will panic
         assert_eq!(expect, actual)
     }
 }

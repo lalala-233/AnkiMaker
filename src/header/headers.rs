@@ -5,15 +5,18 @@ use log::error;
 pub struct Headers {
     html: bool,
     separator: String,
+    length: usize,
 }
 impl Headers {
+    pub fn len(&self) -> usize {
+        self.length
+    }
     pub fn generate_header(&self) -> Vec<String> {
         vec![
             format!("#separator:{}", self.separator),
             format!("#html:{}", self.html),
-            format!("#tags column:1",),
-            format!("#deck column:2",),
-            format!("#notetype column:3",),
+            format!("#deck column:1",),
+            format!("#notetype column:2",),
         ]
     }
     pub fn separator(&self) -> String {
@@ -25,6 +28,7 @@ impl<T: ToHeader> From<&T> for Headers {
         Self {
             separator: value.separator(),
             html: value.html(),
+            length: value.len(),
         }
     }
 }
@@ -34,11 +38,15 @@ impl std::ops::Add for Headers {
         if self.html != rhs.html {
             error!("Different value in html field");
             panic!("Different value in html field");
-        } else if self.separator != rhs.separator {
+        }
+        if self.separator != rhs.separator {
             error!("Different value in separator field");
             panic!("Different value in separator field");
-        } else {
+        }
+        if self.length >= rhs.length {
             self
+        } else {
+            rhs
         }
     }
 }

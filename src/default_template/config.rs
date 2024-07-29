@@ -26,6 +26,10 @@ impl ToHeader for DefaultConfig {
     fn separator(&self) -> String {
         self.info.separator()
     }
+
+    fn len(&self) -> usize {
+        self.content.len()
+    }
 }
 impl Config for DefaultConfig {
     fn generate(self) -> Result<Vec<String>, String> {
