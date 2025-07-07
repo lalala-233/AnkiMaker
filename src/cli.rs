@@ -23,38 +23,38 @@ struct AnkiMaker {
 }
 
 /// # Errors
-/// 
+///
 /// Return Error if there is an internal error.
 pub fn run() -> Result<(), Error> {
     let args = AnkiMaker::parse();
     match (args.default, args.poem) {
-        (false, false) =>
         // A progress bar appears, but it seems too short to see
-        {
-            if let Some(filename) = args.output {
-                let mut filenames = args.path.into_iter().progress();
-                let mut notes = if let Some(filename) = filenames.next() {
-                    try_get_notes(&filename)?
-                } else {
-                    unreachable!()
-                };
-                for filename in filenames {
-                    notes = notes + try_get_notes(&filename)?;
-                }
-                let content = notes.generate().join("\n");
-                write_to_file(&filename, &content)?;
-            } else {
-                for filename in args.path.into_iter().progress() {
-                    let content = process_file(&filename)?;
-                    write_to_file(&format!("{filename}.txt"), &content)?;
-                }
-            }
-            Ok(())
-        }
-        (true, false) => Ok(default_file::<DefaultConfig>(&args.path, args.output)?),
-        (false, true) => Ok(default_file::<PoemConfig>(&args.path, args.output)?),
+        (false, false) => generate_file(&args.path, args.output),
+        (true, false) => generate_default_file::<DefaultConfig>(&args.path, args.output),
+        (false, true) => generate_default_file::<PoemConfig>(&args.path, args.output),
         (true, true) => Err(CLIError::DefaultAndPoemTogether)?,
     }
+}
+fn generate_file(filenames: &[String], output: Option<String>) -> Result<(), Error> {
+    let mut filenames = filenames.iter().progress();
+    if let Some(filename) = output {
+        let mut notes = if let Some(filename) = filenames.next() {
+            try_get_notes(filename)?
+        } else {
+            unreachable!()
+        };
+        for filename in filenames {
+            notes = notes + try_get_notes(filename)?;
+        }
+        let content = notes.generate().join("\n");
+        write_to_file(&filename, &content)?;
+    } else {
+        for filename in filenames {
+            let content = process_file(filename)?;
+            write_to_file(&format!("{filename}.txt"), &content)?;
+        }
+    }
+    Ok(())
 }
 fn write_to_file<'a>(filename: &'a str, content: &'a str) -> Result<(), FileError> {
     fs::write(filename, content).map_err(|error_info| FileError::IO {
@@ -76,7 +76,10 @@ fn process_file(filename: &str) -> Result<String, Error> {
         }
     }
 }
-fn default_file<T: Config>(filenames: &[String], output: Option<String>) -> Result<(), Error> {
+fn generate_default_file<T: Config>(
+    filenames: &[String],
+    output: Option<String>,
+) -> Result<(), Error> {
     let lines = T::default();
     match output {
         Some(filename) if filenames.len() == 1 => {
