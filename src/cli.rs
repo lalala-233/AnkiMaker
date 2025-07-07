@@ -22,6 +22,9 @@ struct AnkiMaker {
     output: Option<String>,
 }
 
+/// # Errors
+/// 
+/// Return Error if there is an internal error.
 pub fn run() -> Result<(), Error> {
     let args = AnkiMaker::parse();
     match (args.default, args.poem) {
@@ -30,7 +33,11 @@ pub fn run() -> Result<(), Error> {
         {
             if let Some(filename) = args.output {
                 let mut filenames = args.path.into_iter().progress();
-                let mut notes = try_get_notes(&filenames.next().unwrap())?;
+                let mut notes = if let Some(filename) = filenames.next() {
+                    try_get_notes(&filename)?
+                } else {
+                    unreachable!()
+                };
                 for filename in filenames {
                     notes = notes + try_get_notes(&filename)?;
                 }

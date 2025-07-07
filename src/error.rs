@@ -7,9 +7,7 @@ pub enum Error {
     #[error(transparent)]
     File(#[from] FileError),
     #[error(transparent)]
-    CLI(#[from] CLIError),
-    #[error(transparent)]
-    Content(#[from] ContentError),
+    CommandLine(#[from] CLIError),
     #[error(transparent)]
     Character(#[from] CharacterError),
 }
@@ -22,8 +20,6 @@ pub enum CharacterError {
     #[error("Invalid character: {0}")]
     InvalidCharacter(char),
 }
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum ContentError {}
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum CLIError {
     #[error("`--default` and `--poem` cannot be used together.")]
