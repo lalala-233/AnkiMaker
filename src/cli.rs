@@ -1,9 +1,4 @@
-use crate::{
-    config::Config,
-    default_template::DefaultConfig,
-    notes::{Notes, ToNotes},
-    poem_template::PoemConfig,
-};
+use crate::prelude::*;
 use clap::Parser;
 use indicatif::ProgressIterator;
 use log::warn;
@@ -66,7 +61,9 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
         "poem" => generate::<PoemConfig>(filename),
         mode => {
             warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
-            warn!("The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
+            warn!(
+                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
+            );
             generate::<DefaultConfig>(filename)
         }
     }
@@ -89,7 +86,9 @@ fn default_file<T: Config>(
             }
         }
         _ => {
-            Err("Use --output when creating multiple files using --default or --poem.".to_string())?;
+            Err(
+                "Use --output when creating multiple files using --default or --poem.".to_string(),
+            )?;
         }
     }
     Ok(())
@@ -128,7 +127,9 @@ fn try_get_notes(filename: &str) -> Result<Notes, Box<dyn Error>> {
         }
         mode => {
             warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
-            warn!("The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly.");
+            warn!(
+                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
+            );
             let toml: DefaultConfig = toml::from_str(&content)?;
             toml.try_get_notes()
         }

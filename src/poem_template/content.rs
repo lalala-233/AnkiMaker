@@ -1,5 +1,5 @@
 use super::Text;
-use serde::{Deserialize, Serialize};
+use crate::prelude::*;
 use std::str::FromStr;
 #[derive(Deserialize, Serialize, Default, Clone)]
 pub struct Content {

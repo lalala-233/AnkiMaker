@@ -1,4 +1,4 @@
-use crate::header::{Headers, ToHeader};
+use crate::prelude::*;
 pub struct Notes {
     notes: Box<dyn Iterator<Item = Vec<String>>>,
     headers: Headers,

@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use crate::prelude::*;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Info {

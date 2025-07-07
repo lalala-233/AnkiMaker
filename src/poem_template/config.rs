@@ -1,10 +1,5 @@
 use super::{Content, Info};
-use crate::{
-    config::Config,
-    header::{SingleFileHeader, ToHeader},
-    notes::ToNotes,
-};
-use serde::{Deserialize, Serialize};
+use crate::prelude::*;
 
 #[derive(Deserialize, Serialize, Default, Clone)]
 pub struct PoemConfig {
