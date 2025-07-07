@@ -8,7 +8,7 @@ pub struct Headers {
     length: usize,
 }
 impl Headers {
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.length
     }
     pub fn generate_header(&self) -> Vec<String> {

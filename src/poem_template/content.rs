@@ -12,8 +12,8 @@ impl Content {
             let iter = text.windows(3).map(|string| string.to_vec());
             let result = iter
                 .enumerate()
-                .map(|(index_reght, mut text)| {
-                    text.insert(0, format!("（{}-{}）", index_left + 1, index_reght + 1));
+                .map(|(index_right, mut text)| {
+                    text.insert(0, format!("（{}-{}）", index_left + 1, index_right + 1));
                     text
                 })
                 .collect::<Vec<_>>();
@@ -21,7 +21,7 @@ impl Content {
         });
         Ok(result)
     }
-    pub fn _new(paragraph: Vec<String>) -> Self {
+    pub const fn _new(paragraph: Vec<String>) -> Self {
         Self { paragraph }
     }
 }
@@ -37,7 +37,7 @@ impl Content {
                         format!("unexpected symbol `{unexpected_symbol}` in the file.")
                     })?
                     .into(),
-            )
+            );
         }
         Ok(texts)
     }
@@ -52,7 +52,7 @@ mod public {
             "某人：「你好，我好，大家好！不是吗？」".to_string(),
             "义已逝，吾亦死！".to_string(),
             "哼哼啊啊啊啊啊啊啊啊".to_string(),
-            "".to_string(),
+            String::new(),
             "哦，是的。我不是！".to_string(),
         ];
 
@@ -87,7 +87,7 @@ mod public {
         let actual = Content { paragraph }
             .try_into_iter()
             .is_err_and(|error_info| expect == error_info);
-        assert!(actual)
+        assert!(actual);
     }
 }
 #[cfg(test)]
@@ -113,6 +113,6 @@ mod private {
         ];
         let expect = Err("unexpected symbol `.` in the file.".to_string());
         let actual = Content { paragraph }.try_get_texts();
-        assert_eq!(expect, actual)
+        assert_eq!(expect, actual);
     }
 }

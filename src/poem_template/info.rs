@@ -12,8 +12,8 @@ pub struct Info {
 }
 impl Default for Info {
     fn default() -> Self {
-        let optional = Some("".to_string());
-        let str = "".to_string();
+        let optional = Some(String::new());
+        let str = String::new();
         Self {
             notetype: str.clone(),
             deck: str.clone(),
@@ -35,7 +35,7 @@ impl Info {
     pub fn generate_author_info(&self) -> String {
         let mut author_info = String::new();
         if let Some(dynasty) = self.dynasty.clone() {
-            let str = format!("（{}）", dynasty);
+            let str = format!("（{dynasty}）");
             author_info.push_str(&str);
         }
         if let Some(author) = self.author.clone() {
@@ -44,12 +44,12 @@ impl Info {
         author_info
     }
     pub fn separator(&self) -> String {
-        self.separator.clone().unwrap_or("|".to_string())
+        self.separator.clone().unwrap_or_else(|| "|".to_string())
     }
-    pub fn title(&self) -> &String {
+    pub const fn title(&self) -> &String {
         &self.title
     }
-    pub fn _new(
+    pub const fn _new(
         notetype: String,
         deck: String,
         mode: String,
@@ -106,7 +106,7 @@ mod public {
     }
     #[test]
     pub fn generate_author_info() {
-        let (_notetype, _deck, _titlee, author, dynasty, _separator, info) = default();
+        let (_notetype, _deck, _title, author, dynasty, _separator, info) = default();
         //all
         let expect = format!("（{}）{}", dynasty.unwrap(), author.unwrap());
         let actual = info.generate_author_info();

@@ -40,11 +40,11 @@ pub fn run() -> Result<(), Box<dyn Error>> {
                     notes = notes + try_get_notes(&filename)?;
                 }
                 let content = notes.generate().join("\n");
-                write_to_file(&filename, &content)?
+                write_to_file(&filename, &content)?;
             } else {
                 for filename in args.path.into_iter().progress() {
                     let content = process_file(&filename)?;
-                    write_to_file(&format!("{filename}.txt"), &content)?
+                    write_to_file(&format!("{filename}.txt"), &content)?;
                 }
             }
             Ok(())
@@ -80,16 +80,16 @@ fn default_file<T: Config>(
         Some(filename) if filenames.len() == 1 => {
             warn!("Using --output when using --default or --poem is not recommended.");
             let content = toml::to_string(&lines).unwrap();
-            write_to_file(&filename, &content)?
+            write_to_file(&filename, &content)?;
         }
         None => {
             let content = toml::to_string(&lines).unwrap();
             for filename in filenames.iter().progress() {
-                write_to_file(filename, &content)?
+                write_to_file(filename, &content)?;
             }
         }
         _ => {
-            Err("Use --output when creating multiple files using --default or --poem.".to_string())?
+            Err("Use --output when creating multiple files using --default or --poem.".to_string())?;
         }
     }
     Ok(())

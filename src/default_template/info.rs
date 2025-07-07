@@ -10,11 +10,11 @@ pub struct Info {
 
 impl Default for Info {
     fn default() -> Self {
-        let str = "".to_string();
+        let str = String::new();
         Self {
             deck: str.clone(),
             mode: "default".to_string(),
-            notetype: str.clone(),
+            notetype: str,
             separator: None,
         }
     }
@@ -27,12 +27,12 @@ impl Info {
         self.notetype.clone()
     }
     pub fn separator(&self) -> String {
-        self.separator.clone().unwrap_or("|".to_string())
+        self.separator.clone().unwrap_or_else(|| "|".to_string())
     }
-    pub fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
+    pub const fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
         Self {
             deck,
-            mode: Default::default(),
+            mode: String::new(),
             notetype,
             separator,
         }

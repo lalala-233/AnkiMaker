@@ -26,7 +26,7 @@ impl Notes {
         let lines = self.notes.map(|texts| {
             let vec = texts
                 .into_iter()
-                .map(|text| format!("\"{}\"", text))
+                .map(|text| format!("\"{text}\""))
                 .collect::<Vec<_>>();
             vec.join(&separator)
         });

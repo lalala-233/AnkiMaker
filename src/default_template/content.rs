@@ -50,11 +50,11 @@ mod public {
         let content = Content {
             paragraph: expect
                 .iter()
-                .map(|text| text.iter().map(|str| str.to_string()).collect())
+                .map(|text| text.iter().map(std::string::ToString::to_string).collect())
                 .collect(),
         };
         let actual: Vec<_> = content.into_iter().collect();
-        assert_eq!(expect, actual)
+        assert_eq!(expect, actual);
     }
     #[test]
     #[should_panic]
@@ -77,10 +77,10 @@ mod public {
         let content = Content {
             paragraph: expect
                 .iter()
-                .map(|text| text.iter().map(|str| str.to_string()).collect())
+                .map(|text| text.iter().map(std::string::ToString::to_string).collect())
                 .collect(),
         };
         let actual: Vec<_> = content.into_iter().collect(); //will panic
-        assert_eq!(expect, actual)
+        assert_eq!(expect, actual);
     }
 }

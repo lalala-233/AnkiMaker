@@ -44,9 +44,9 @@ impl ToNotes for PoemConfig {
         let title = info.title().clone();
         let iter = content.try_into_iter()?.map(move |mut texts| {
             let index = texts.remove(0);
-            let title = format!("{}{}", title, index);
+            let title = format!("{title}{index}");
             texts.insert(0, title);
-            texts.insert(1, author.to_owned());
+            texts.insert(1, author.clone());
             texts
         });
         Ok(iter)
@@ -89,7 +89,7 @@ paragraph = [
             "谏逐客书（4-1）|李斯||夫物不产于秦，|",
         ]
         .into_iter()
-        .map(|str| str.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
         let actual = config.generate().unwrap();
         assert_eq!(expect, actual);
@@ -114,6 +114,6 @@ paragraph = [
         )
         .unwrap();
         let actual = config_err.generate();
-        assert!(actual.is_err())
+        assert!(actual.is_err());
     }
 }

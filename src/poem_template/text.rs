@@ -18,7 +18,7 @@ impl Text {
             (None, _)
             | (Some(Character::Text(_)), RawCharacter::Symbol(_))
             | (Some(Character::Symbol(_)), RawCharacter::Text(_)) => {
-                self.text.push(raw_char.into())
+                self.text.push(raw_char.into());
             }
 
             (Some(character), _) => character.push_str(&raw_char),
@@ -29,7 +29,7 @@ impl FromStr for Text {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut result = Text::default();
+        let mut result = Self::default();
         for symbol in s.chars() {
             result.push(RawCharacter::try_from(symbol)?);
         }
@@ -40,7 +40,7 @@ impl From<Text> for Vec<String> {
     fn from(val: Text) -> Self {
         let mut result = Vec::with_capacity(val.text.len() / 2 + 3);
         let mut iter = val.text.into_iter();
-        result.push("".to_string());
+        result.push(String::new());
         match iter.next() {
             Some(Character::Symbol(symbol)) => {
                 result.push(symbol);
@@ -55,7 +55,7 @@ impl From<Text> for Vec<String> {
                 Character::Symbol(symbol) => result.last_mut().unwrap().push_str(&symbol),
             }
         }
-        result.push("".to_string());
+        result.push(String::new());
         result
     }
 }
@@ -92,24 +92,24 @@ mod public {
             Text::from_str(&tests.1).unwrap(),
             Text::from_str(&tests.2),
         );
-        assert_eq!(expect, actual)
+        assert_eq!(expect, actual);
     }
     #[test]
     pub fn into_string() {
         let expect = (
             vec![
-                "".to_string(),
+                String::new(),
                 "「你爱我，".to_string(),
                 "我爱你，".to_string(),
                 "蜜雪冰城甜蜜蜜！」".to_string(),
-                "".to_string(),
+                String::new(),
             ],
             vec![
-                "".to_string(),
+                String::new(),
                 "你爱我，".to_string(),
                 "我爱你，".to_string(),
                 "蜜雪冰城甜蜜蜜！".to_string(),
-                "".to_string(),
+                String::new(),
             ],
         );
         let actual = (
@@ -121,7 +121,7 @@ mod public {
                 .into(),
         );
 
-        assert_eq!(expect, actual)
+        assert_eq!(expect, actual);
     }
     #[test]
     pub fn push() {

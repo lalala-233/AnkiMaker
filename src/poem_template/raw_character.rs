@@ -48,8 +48,8 @@ impl std::ops::Deref for RawCharacter {
     type Target = str;
     fn deref(&self) -> &Self::Target {
         match self {
-            RawCharacter::Symbol(content) | RawCharacter::Text(content) => content,
-            RawCharacter::RightQuotationMark(mark) => mark,
+            Self::Symbol(content) | Self::Text(content) => content,
+            Self::RightQuotationMark(mark) => mark,
         }
     }
 }
@@ -61,17 +61,17 @@ mod public {
         let test_symbol = |char: char| {
             let actual = RawCharacter::try_from(char).unwrap();
             let expect = RawCharacter::Symbol(char.to_string());
-            assert_eq!(expect, actual)
+            assert_eq!(expect, actual);
         };
         let test_text = |char: char| {
             let actual = RawCharacter::try_from(char).unwrap();
             let expect = RawCharacter::Text(char.to_string());
-            assert_eq!(expect, actual)
+            assert_eq!(expect, actual);
         };
         let test_err = |char: char| {
             let actual = RawCharacter::try_from(char);
             let expect = Err(char.to_string());
-            assert_eq!(expect, actual)
+            assert_eq!(expect, actual);
         };
         test_symbol('：');
         test_symbol('；');
