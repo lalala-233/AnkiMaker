@@ -28,12 +28,12 @@ impl Text {
     }
 }
 impl FromStr for Text {
-    type Err = String;
+    type Err = CharacterError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut result = Self::default();
         for symbol in s.chars() {
-            result.push(RawCharacter::try_from(symbol)?);
+            result.push(RawCharacter::try_from(symbol)?)?;
         }
         Ok(result)
     }
@@ -63,8 +63,7 @@ impl From<Text> for Vec<String> {
 }
 #[cfg(test)]
 mod public {
-    use super::{Character, RawCharacter, Text};
-    use std::str::FromStr;
+    use super::*;
     #[test]
     pub fn from() {
         let tests = (
@@ -87,7 +86,7 @@ mod public {
         let expect = (
             Text { text: symbols1 },
             Text { text: symbols2 },
-            Err(",".to_string()),
+            Err(CharacterError::InvalidCharacter(',')),
         );
         let actual = (
             Text::from_str(&tests.0).unwrap(),
@@ -151,7 +150,7 @@ mod public {
         let actual = raw_chars
             .into_iter()
             .fold(Text::default(), |mut text, raw_char| {
-                text.push(raw_char);
+                text.push(raw_char).unwrap();
                 text
             });
         assert_eq!(expect, actual);

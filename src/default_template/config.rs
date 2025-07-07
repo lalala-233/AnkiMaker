@@ -7,7 +7,7 @@ pub struct DefaultConfig {
     content: Content,
 }
 impl ToNotes for DefaultConfig {
-    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError> {
         Ok(self.content.into_iter())
     }
 }
@@ -27,7 +27,7 @@ impl ToHeader for DefaultConfig {
     }
 }
 impl Config for DefaultConfig {
-    fn generate(self) -> Result<Vec<String>, String> {
+    fn generate(self) -> Result<Vec<String>, CharacterError> {
         let mut result = Vec::new();
         let header = SingleFileHeader::from(&self).generate_header();
         result.extend(header);

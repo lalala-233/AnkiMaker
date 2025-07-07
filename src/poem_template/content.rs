@@ -6,7 +6,7 @@ pub struct Content {
     paragraph: Vec<String>,
 }
 impl Content {
-    pub fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
+    pub fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError> {
         let iter = self.try_get_texts()?.into_iter();
         let result = iter.enumerate().flat_map(|(index_left, text)| {
             text.windows(3)
@@ -23,17 +23,10 @@ impl Content {
 }
 
 impl Content {
-    //private
-    fn try_get_texts(&self) -> Result<Vec<Vec<String>>, String> {
+    fn try_get_texts(&self) -> Result<Vec<Vec<String>>, CharacterError> {
         let mut texts = Vec::with_capacity(self.paragraph.len());
         for text in &self.paragraph {
-            texts.push(
-                Text::from_str(text)
-                    .map_err(|unexpected_symbol| {
-                        format!("unexpected symbol `{unexpected_symbol}` in the file.")
-                    })?
-                    .into(),
-            );
+            texts.push(Text::from_str(text)?.into());
         }
         Ok(texts)
     }
@@ -66,7 +59,12 @@ mod public {
             ["（5-3）", "是的。", "我不是！", ""],
         ]
         .into_iter()
-        .map(|vec_str| vec_str.into_iter().map(|str| str.to_string()).collect())
+        .map(|vec_str| {
+            vec_str
+                .into_iter()
+                .map(std::string::ToString::to_string)
+                .collect()
+        })
         .collect();
         let actual = Content { paragraph }
             .try_into_iter()
@@ -79,17 +77,15 @@ mod public {
             "某人:「你好,我好，大家好！不是吗?」".to_string(),
             "哦，是的。我不是!".to_string(),
         ];
-        let expect = "unexpected symbol `:` in the file.".to_string();
-        let actual = Content { paragraph }
-            .try_into_iter()
-            .is_err_and(|error_info| expect == error_info);
-        assert!(actual);
+        assert_eq!(
+            Some(CharacterError::InvalidCharacter(':')),
+            Content { paragraph }.try_into_iter().err()
+        );
     }
 }
 #[cfg(test)]
 mod private {
-    use super::{Content, Text};
-    use std::str::FromStr;
+    use super::*;
     #[test]
     fn generate_texts() {
         let paragraph = vec![
@@ -107,8 +103,9 @@ mod private {
             "哦，是的.我不是！".to_string(),
             "某人：你好,我好，大家好！不是吗？".to_string(),
         ];
-        let expect = Err("unexpected symbol `.` in the file.".to_string());
-        let actual = Content { paragraph }.try_get_texts();
-        assert_eq!(expect, actual);
+        assert_eq!(
+            Err(CharacterError::InvalidCharacter('.')),
+            Content { paragraph }.try_get_texts()
+        );
     }
 }

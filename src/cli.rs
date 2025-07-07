@@ -2,7 +2,7 @@ use crate::prelude::*;
 use clap::Parser;
 use indicatif::ProgressIterator;
 use log::warn;
-use std::{error::Error, fs};
+use std::fs;
 
 #[derive(Parser)]
 /// Generate cards from toml files.
@@ -22,7 +22,7 @@ struct AnkiMaker {
     output: Option<String>,
 }
 
-pub fn run() -> Result<(), Box<dyn Error>> {
+pub fn run() -> Result<(), Error> {
     let args = AnkiMaker::parse();
     match (args.default, args.poem) {
         (false, false) =>
@@ -44,17 +44,18 @@ pub fn run() -> Result<(), Box<dyn Error>> {
             }
             Ok(())
         }
-        (true, false) => default_file::<DefaultConfig>(&args.path, args.output),
-        (false, true) => default_file::<PoemConfig>(&args.path, args.output),
-        (true, true) => Err("--default and --poem cannot be used together.")?,
+        (true, false) => Ok(default_file::<DefaultConfig>(&args.path, args.output)?),
+        (false, true) => Ok(default_file::<PoemConfig>(&args.path, args.output)?),
+        (true, true) => Err(CLIError::DefaultAndPoemTogether)?,
     }
 }
-fn write_to_file(filename: &str, content: &str) -> Result<(), Box<dyn Error>> {
-    fs::write(filename, content)
-        .map_err(|error_info| format!("In {filename}.\nDetails: {error_info}"))?;
-    Ok(())
+fn write_to_file<'a>(filename: &'a str, content: &'a str) -> Result<(), FileError> {
+    fs::write(filename, content).map_err(|error_info| FileError::IO {
+        filename: filename.to_string(),
+        kind: error_info.kind(),
+    })
 }
-fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
+fn process_file(filename: &str) -> Result<String, Error> {
     let mode = try_detect_mode(filename)?;
     match mode.as_str() {
         "default" => generate::<DefaultConfig>(filename),
@@ -68,10 +69,7 @@ fn process_file(filename: &str) -> Result<String, Box<dyn Error>> {
         }
     }
 }
-fn default_file<T: Config>(
-    filenames: &[String],
-    output: Option<String>,
-) -> Result<(), Box<dyn Error>> {
+fn default_file<T: Config>(filenames: &[String], output: Option<String>) -> Result<(), Error> {
     let lines = T::default();
     match output {
         Some(filename) if filenames.len() == 1 => {
@@ -86,20 +84,24 @@ fn default_file<T: Config>(
             }
         }
         _ => {
-            Err(
-                "Use --output when creating multiple files using --default or --poem.".to_string(),
-            )?;
+            Err(CLIError::UseOutputWhenCreatingMultipleFiles)?;
         }
     }
     Ok(())
 }
-fn generate<T: Config>(filename: &str) -> Result<String, Box<dyn Error>> {
-    let content = fs::read_to_string(filename)?;
-    let toml: T = toml::from_str(&content)?;
+fn read_file(filename: &str) -> Result<String, FileError> {
+    fs::read_to_string(filename).map_err(|error_info| FileError::IO {
+        filename: filename.to_string(),
+        kind: error_info.kind(),
+    })
+}
+fn generate<T: Config>(filename: &str) -> Result<String, Error> {
+    let content = read_file(filename)?;
+    let toml: T = toml::from_str(&content).map_err(SerdeError::from)?;
     let content: String = toml.generate()?.join("\n");
     Ok(content)
 }
-fn try_detect_mode(filename: &str) -> Result<String, Box<dyn Error>> {
+fn try_detect_mode(filename: &str) -> Result<String, Error> {
     use serde::{Deserialize, Serialize};
     #[derive(Deserialize, Serialize, Default)]
     struct Config {
@@ -109,30 +111,29 @@ fn try_detect_mode(filename: &str) -> Result<String, Box<dyn Error>> {
     struct Info {
         mode: String,
     }
-    let content = fs::read_to_string(filename)?;
-    let toml: Config = toml::from_str(&content)?;
+    let content = read_file(filename)?;
+    let toml: Config = toml::from_str(&content).map_err(SerdeError::from)?;
     Ok(toml.info.mode)
 }
-fn try_get_notes(filename: &str) -> Result<Notes, Box<dyn Error>> {
-    let content = fs::read_to_string(filename)?;
+fn try_get_notes(filename: &str) -> Result<Notes, Error> {
+    let content = read_file(filename)?;
     let mode = try_detect_mode(filename)?;
-    let notes = match mode.as_str() {
+    match mode.as_str() {
         "default" => {
-            let toml: DefaultConfig = toml::from_str(&content)?;
-            toml.try_get_notes()
+            let toml: DefaultConfig = toml::from_str(&content).map_err(SerdeError::from)?;
+            Ok(toml.try_get_notes()?)
         }
         "poem" => {
-            let toml: PoemConfig = toml::from_str(&content)?;
-            toml.try_get_notes()
+            let toml: PoemConfig = toml::from_str(&content).map_err(SerdeError::from)?;
+            Ok(toml.try_get_notes()?)
         }
         mode => {
             warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
             warn!(
                 "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
             );
-            let toml: DefaultConfig = toml::from_str(&content)?;
-            toml.try_get_notes()
+            let toml: DefaultConfig = toml::from_str(&content).map_err(SerdeError::from)?;
+            Ok(toml.try_get_notes()?)
         }
-    }?;
-    Ok(notes)
+    }
 }

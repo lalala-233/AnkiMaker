@@ -1,6 +1,6 @@
 [package]
 name = "anki_maker"
-version = "0.8.4"
+version = "0.8.5"
 edition = "2024"
 default-run = "ankimaker"
 

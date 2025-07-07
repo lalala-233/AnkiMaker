@@ -1,3 +1,4 @@
-pub trait Config: for<'a> serde::Deserialize<'a> + Default + serde::Serialize {
-    fn generate(self) -> Result<Vec<String>, String>;
+use crate::prelude::*;
+pub trait Config: for<'a> Deserialize<'a> + Serialize + Default {
+    fn generate(self) -> Result<Vec<String>, CharacterError>;
 }

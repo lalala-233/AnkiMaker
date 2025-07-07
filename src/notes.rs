@@ -34,8 +34,8 @@ impl Notes {
     }
 }
 pub trait ToNotes: ToHeader + 'static {
-    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String>;
-    fn try_get_notes(self) -> Result<Notes, String>
+    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError>;
+    fn try_get_notes(self) -> Result<Notes, CharacterError>
     where
         Self: Sized,
     {
