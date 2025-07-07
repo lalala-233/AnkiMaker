@@ -49,25 +49,6 @@ impl Info {
     pub const fn title(&self) -> &String {
         &self.title
     }
-    pub const fn _new(
-        notetype: String,
-        deck: String,
-        mode: String,
-        title: String,
-        author: Option<String>,
-        dynasty: Option<String>,
-        separator: Option<String>,
-    ) -> Self {
-        Self {
-            notetype,
-            deck,
-            mode,
-            title,
-            author,
-            dynasty,
-            separator,
-        }
-    }
 }
 
 #[cfg(test)]

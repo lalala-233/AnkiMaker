@@ -1,4 +1,5 @@
 use super::RawCharacter;
+use crate::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Character {
@@ -20,14 +21,14 @@ impl std::ops::DerefMut for Character {
         }
     }
 }
-impl From<RawCharacter> for Character {
-    fn from(val: RawCharacter) -> Self {
-        match val {
-            RawCharacter::Symbol(symbol) => Self::Symbol(symbol),
-            RawCharacter::Text(text) => Self::Text(text),
-            RawCharacter::RightQuotationMark(_) => {
-                panic!("RightQuotationMark can't be into Character")
-            }
+impl TryFrom<RawCharacter> for Character {
+    type Error = CharacterError;
+
+    fn try_from(value: RawCharacter) -> Result<Self, Self::Error> {
+        match value {
+            RawCharacter::Symbol(symbol) => Ok(Self::Symbol(symbol)),
+            RawCharacter::Text(text) => Ok(Self::Text(text)),
+            RawCharacter::RightQuotationMark(_) => Err(CharacterError::RightQuotationMark),
         }
     }
 }

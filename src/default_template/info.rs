@@ -29,12 +29,4 @@ impl Info {
     pub fn separator(&self) -> String {
         self.separator.clone().unwrap_or_else(|| "|".to_string())
     }
-    pub const fn _new(notetype: String, deck: String, separator: Option<String>) -> Self {
-        Self {
-            deck,
-            mode: String::new(),
-            notetype,
-            separator,
-        }
-    }
 }

@@ -12,6 +12,7 @@ mod prelude {
     pub use crate::{
         config::Config,
         default_template::DefaultConfig,
+        error::{CharacterError, Error},
         header::{Headers, SingleFileHeader, ToHeader},
         notes::{Notes, ToNotes},
         poem_template::PoemConfig,

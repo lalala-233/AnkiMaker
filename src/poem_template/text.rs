@@ -1,5 +1,6 @@
 use super::Character;
 use super::RawCharacter;
+use crate::prelude::*;
 use log::warn;
 use std::str::FromStr;
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -7,7 +8,7 @@ pub struct Text {
     text: Vec<Character>,
 }
 impl Text {
-    pub fn push(&mut self, raw_char: RawCharacter) {
+    pub fn push(&mut self, raw_char: RawCharacter) -> Result<(), CharacterError> {
         let last = self.text.last_mut();
         match (last, raw_char.clone()) {
             (Some(Character::Symbol(last)), RawCharacter::Symbol(second_symbol)) => {
@@ -18,11 +19,12 @@ impl Text {
             (None, _)
             | (Some(Character::Text(_)), RawCharacter::Symbol(_))
             | (Some(Character::Symbol(_)), RawCharacter::Text(_)) => {
-                self.text.push(raw_char.into());
+                self.text.push(raw_char.try_into()?);
             }
 
             (Some(character), _) => character.push_str(&raw_char),
         }
+        Ok(())
     }
 }
 impl FromStr for Text {

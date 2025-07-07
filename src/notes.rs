@@ -18,7 +18,6 @@ impl std::ops::Add for Notes {
     }
 }
 impl Notes {
-    /// May panic!()
     pub fn generate(self) -> Vec<String> {
         let headers = self.headers;
         let mut result = headers.generate_header();

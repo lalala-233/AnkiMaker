@@ -20,11 +20,6 @@ impl Content {
             text
         })
     }
-    pub fn _new(paragraph: Vec<Vec<String>>) -> Self {
-        Self {
-            paragraph: paragraph.into_iter().collect(),
-        }
-    }
 }
 
 #[cfg(test)]

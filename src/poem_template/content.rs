@@ -9,20 +9,16 @@ impl Content {
     pub fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, String> {
         let iter = self.try_get_texts()?.into_iter();
         let result = iter.enumerate().flat_map(|(index_left, text)| {
-            let iter = text.windows(3).map(|string| string.to_vec());
-            let result = iter
+            text.windows(3)
                 .enumerate()
-                .map(|(index_right, mut text)| {
-                    text.insert(0, format!("（{}-{}）", index_left + 1, index_right + 1));
-                    text
+                .map(|(index_right, text)| {
+                    let mut vec = vec![format!("（{}-{}）", index_left + 1, index_right + 1)];
+                    vec.extend_from_slice(text);
+                    vec
                 })
-                .collect::<Vec<_>>();
-            result.into_iter()
+                .collect::<Vec<_>>()
         });
         Ok(result)
-    }
-    pub const fn _new(paragraph: Vec<String>) -> Self {
-        Self { paragraph }
     }
 }
 
