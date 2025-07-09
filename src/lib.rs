@@ -3,7 +3,7 @@ mod config;
 mod default_template;
 mod error;
 mod header;
-mod notes;
+mod note;
 mod poem_template;
 
 mod prelude {
@@ -11,8 +11,8 @@ mod prelude {
         config::Config,
         default_template::DefaultConfig,
         error::{CLIError, CharacterError, ContentError, Error, FileError, SerdeError},
-        header::{Headers, SingleFileHeader, ToHeader},
-        notes::{Notes, ToNotes},
+        header::{Header, ToHeader, headers::Headers},
+        note::{ToNote, notes::Notes},
         poem_template::PoemConfig,
     };
     pub use serde::{Deserialize, Serialize};

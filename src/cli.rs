@@ -39,11 +39,7 @@ pub fn run() -> Result<(), Error> {
 }
 fn generate_files_to(filenames: &[String], output: &str) -> Result<(), Error> {
     let mut filenames = filenames.iter().progress();
-    let mut notes = if let Some(filename) = filenames.next() {
-        try_get_notes(filename)?
-    } else {
-        unreachable!()
-    };
+    let mut notes = try_get_notes(filenames.next().unwrap())?; // clap ensure that there is at least one file
     for filename in filenames {
         notes = notes + try_get_notes(filename)?;
     }

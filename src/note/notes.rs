@@ -18,6 +18,9 @@ impl std::ops::Add for Notes {
     }
 }
 impl Notes {
+    pub fn new(notes: Box<dyn Iterator<Item = Vec<String>>>, headers: Headers) -> Self {
+        Self { notes, headers }
+    }
     pub fn generate(self) -> Vec<String> {
         let headers = self.headers;
         let mut result = headers.generate_header();
@@ -31,26 +34,5 @@ impl Notes {
         });
         result.extend(lines);
         result
-    }
-}
-pub trait ToNotes: ToHeader + Default + Serialize + 'static {
-    fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError>;
-    fn try_get_notes(self) -> Result<Notes, CharacterError>
-    where
-        Self: Sized,
-    {
-        let headers = Headers::from(&self);
-        let notetype = self.notetype();
-        let deck = self.deck();
-        let iter = self.try_into_iter()?;
-        let result = iter.map(move |mut text| {
-            text.insert(0, deck.clone());
-            text.insert(1, notetype.clone());
-            text
-        });
-        Ok(Notes {
-            notes: Box::new(result),
-            headers,
-        })
     }
 }

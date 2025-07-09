@@ -3,12 +3,12 @@ mod content;
 mod info;
 mod raw_character;
 mod text;
-pub use character::Character;
-pub use content::Content;
-pub use info::Info;
-pub use raw_character::RawCharacter;
-pub use text::Text;
 use crate::prelude::*;
+use character::Character;
+use content::Content;
+use info::Info;
+use raw_character::RawCharacter;
+use text::Text;
 
 #[derive(Deserialize, Serialize, Default, Clone)]
 pub struct PoemConfig {
@@ -30,7 +30,7 @@ impl ToHeader for PoemConfig {
     }
 }
 impl Config for PoemConfig {}
-impl ToNotes for PoemConfig {
+impl ToNote for PoemConfig {
     fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError> {
         let Self { info, content } = self;
         let author = info.generate_author_info();

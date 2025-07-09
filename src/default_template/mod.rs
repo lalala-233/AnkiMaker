@@ -1,15 +1,15 @@
 mod content;
 mod info;
 use crate::prelude::*;
-pub use content::Content;
-pub use info::Info;
+use content::Content;
+use info::Info;
 
 #[derive(Deserialize, Serialize, Default, Clone)]
 pub struct DefaultConfig {
     info: Info,
     content: Content,
 }
-impl ToNotes for DefaultConfig {
+impl ToNote for DefaultConfig {
     fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError> {
         Ok(self.content.into_iter())
     }
@@ -32,7 +32,7 @@ impl ToHeader for DefaultConfig {
 impl Config for DefaultConfig {
     fn generate(self) -> Result<Vec<String>, CharacterError> {
         let mut result = Vec::new();
-        let header = SingleFileHeader::from(&self).generate_header();
+        let header = Header::from(&self).generate_header();
         result.extend(header);
         let separator = self.info.separator();
         let lines = self.content.into_iter().map(|texts| {
