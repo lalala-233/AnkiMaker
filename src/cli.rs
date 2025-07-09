@@ -27,74 +27,59 @@ struct AnkiMaker {
 /// Return Error if there is an internal error.
 pub fn run() -> Result<(), Error> {
     let args = AnkiMaker::parse();
-    let filenames = &args.path;
+    let mut filenames = args.path.into_iter().progress();
     match (args.default, args.poem, args.output) {
-        (false, false, Some(output)) => generate_files_to(filenames, &output),
-        (_, _, Some(_)) => Err(CLIError::DefaultOrPoemTogetherWithOutput)?,
-        (false, false, None) => generate_each_file(filenames),
+        (false, false, Some(output)) => {
+            if filenames.len() == 1
+                && let Some(filename) = filenames.next()
+            {
+                generate_one_file_to(&filename, &output)
+            } else {
+                generate_files_to(filenames, &output)
+            }
+        }
+        (false, false, None) => generate_files(filenames),
         (true, false, None) => generate_default_file::<DefaultConfig>(filenames),
         (false, true, None) => generate_default_file::<PoemConfig>(filenames),
+        (_, _, Some(_)) => Err(CLIError::DefaultOrPoemTogetherWithOutput)?,
         (true, true, _) => Err(CLIError::DefaultTogetherWithPoem)?,
     }
 }
-fn generate_files_to(filenames: &[String], output: &str) -> Result<(), Error> {
-    let mut filenames = filenames.iter().progress();
-    let mut notes = try_get_notes(filenames.next().unwrap())?; // clap ensure that there is at least one file
+fn generate_one_file_to(filename: &str, output: &str) -> Result<(), Error> {
+    let note = get_note_from_name(filename)?.generate().join("\n");
+    write_file(output, &note)
+}
+fn generate_files_to(filenames: impl Iterator<Item = String>, output: &str) -> Result<(), Error> {
+    let mut iter = filenames.map(|filename| get_notes_from_name(&filename));
+    let first: Notes = iter.next().unwrap()?;
+    let notes = iter.try_fold(first, |acc, note| note.map(|note| acc + note))?;
+
+    let notes = notes.generate().join("\n");
+    write_file(output, &notes)
+}
+fn generate_files(filenames: impl Iterator<Item = String>) -> Result<(), Error> {
     for filename in filenames {
-        notes = notes + try_get_notes(filename)?;
-    }
-    let content = notes.generate().join("\n");
-    write_to_file(output, &content)?;
-    Ok(())
-}
-fn generate_each_file(filenames: &[String]) -> Result<(), Error> {
-    for filename in filenames.iter().progress() {
-        let content = process_file(filename)?;
-        write_to_file(&format!("{filename}.txt"), &content)?;
+        generate_one_file_to(&filename, &format!("{filename}.txt"))?;
     }
     Ok(())
 }
-fn generate_default_file<T: Config>(filenames: &[String]) -> Result<(), Error> {
+fn generate_default_file<T: Template>(
+    filenames: impl Iterator<Item = String>,
+) -> Result<(), Error> {
     let content = toml::to_string(&T::default()).unwrap();
-    for filename in filenames.iter().progress() {
-        write_to_file(filename, &content)?;
+    for filename in filenames {
+        write_file(&filename, &content)?;
     }
     Ok(())
-}
-fn generate<T: Config>(filename: &str) -> Result<String, Error> {
-    let content = read_file(filename)?;
-    let config: T = toml::from_str(&content).map_err(SerdeError::from)?;
-    let content: String = config.generate()?.join("\n");
-    Ok(content)
-}
-fn write_to_file<'a>(filename: &'a str, content: &'a str) -> Result<(), FileError> {
-    fs::write(filename, content).map_err(|error_info| FileError::IO {
-        filename: filename.to_string(),
-        kind: error_info.kind(),
-    })
-}
-fn process_file(filename: &str) -> Result<String, Error> {
-    let mode = try_detect_mode(filename)?;
-    match mode.as_str() {
-        "default" => generate::<DefaultConfig>(filename),
-        "poem" => generate::<PoemConfig>(filename),
-        mode => {
-            warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
-            warn!(
-                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
-            );
-            generate::<DefaultConfig>(filename)
-        }
-    }
 }
 fn read_file(filename: &str) -> Result<String, FileError> {
-    fs::read_to_string(filename).map_err(|error_info| FileError::IO {
-        filename: filename.to_string(),
-        kind: error_info.kind(),
-    })
+    fs::read_to_string(filename).map_err(|error_info| FileError::new(filename, &error_info))
 }
-fn try_detect_mode(filename: &str) -> Result<String, Error> {
-    use serde::{Deserialize, Serialize};
+fn write_file<'a>(filename: &'a str, content: &'a str) -> Result<(), Error> {
+    fs::write(filename, content)
+        .map_err(|error_info| Error::File(FileError::new(filename, &error_info)))
+}
+fn detect_mode(filename: &str, file_content: &str) -> Result<Mode, Error> {
     #[derive(Deserialize, Serialize, Default)]
     struct Config {
         info: Info,
@@ -103,29 +88,30 @@ fn try_detect_mode(filename: &str) -> Result<String, Error> {
     struct Info {
         mode: String,
     }
-    let content = read_file(filename)?;
-    let toml: Config = toml::from_str(&content).map_err(SerdeError::from)?;
-    Ok(toml.info.mode)
-}
-fn try_get_notes(filename: &str) -> Result<Notes, Error> {
-    let content = read_file(filename)?;
-    let mode = try_detect_mode(filename)?;
-    match mode.as_str() {
-        "default" => {
-            let toml: DefaultConfig = toml::from_str(&content).map_err(SerdeError::from)?;
-            Ok(toml.try_get_notes()?)
-        }
-        "poem" => {
-            let toml: PoemConfig = toml::from_str(&content).map_err(SerdeError::from)?;
-            Ok(toml.try_get_notes()?)
-        }
-        mode => {
-            warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
-            warn!(
-                "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
-            );
-            let toml: DefaultConfig = toml::from_str(&content).map_err(SerdeError::from)?;
-            Ok(toml.try_get_notes()?)
-        }
+    let config: Config = parse_from_toml(file_content)?;
+    let mode = config.info.mode.into();
+    if let Mode::Unknown(ref mode) = mode {
+        warn!("Unknown mode {mode} detected in {filename}, using default mode instead.");
+        warn!(
+            "The file appears to have an unsupported mode configuration. Please check the file contents and ensure the mode is set correctly."
+        );
     }
+    Ok(mode)
+}
+fn get_note_from_name(filename: &str) -> Result<Note, Error> {
+    let content = read_file(filename)?;
+    let mode = detect_mode(filename, &content)?;
+    match mode {
+        Mode::Poem => get_note_from_content::<PoemConfig>(&content),
+        Mode::Default | Mode::Unknown(_) => get_note_from_content::<DefaultConfig>(&content),
+    }
+}
+fn get_notes_from_name(filename: &str) -> Result<Notes, Error> {
+    get_note_from_name(filename).map(Notes::from)
+}
+fn get_note_from_content<T: Template>(content: &str) -> Result<Note, Error> {
+    parse_from_toml::<T>(content)?.try_get_note()
+}
+fn parse_from_toml<'a, T: Deserialize<'a>>(content: &'a str) -> Result<T, SerdeError> {
+    toml::from_str::<T>(content).map_err(SerdeError::from)
 }

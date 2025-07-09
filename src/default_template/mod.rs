@@ -29,20 +29,20 @@ impl ToHeader for DefaultConfig {
         self.content.len()
     }
 }
-impl Config for DefaultConfig {
-    fn generate(self) -> Result<Vec<String>, CharacterError> {
-        let mut result = Vec::new();
-        let header = Header::from(&self).generate_header();
-        result.extend(header);
-        let separator = self.info.separator();
-        let lines = self.content.into_iter().map(|texts| {
-            let vec = texts
-                .into_iter()
-                .map(|text| format!("\"{text}\""))
-                .collect::<Vec<_>>();
-            vec.join(&separator)
-        });
-        result.extend(lines);
-        Ok(result)
-    }
-}
+// impl Config for DefaultConfig {
+//     fn config_generate(self) -> Result<Vec<String>, CharacterError> {
+//         let mut result = Vec::new();
+//         let header = Header::from(&self).generate_header();
+//         result.extend(header);
+//         let separator = self.info.separator();
+//         let lines = self.content.into_iter().map(|texts| {
+//             let vec = texts
+//                 .into_iter()
+//                 .map(|text| format!("\"{text}\""))
+//                 .collect::<Vec<_>>();
+//             vec.join(&separator)
+//         });
+//         result.extend(lines);
+//         Ok(result)
+//     }
+// }

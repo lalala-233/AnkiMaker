@@ -1,4 +1,4 @@
-use super::ToHeader;
+use crate::prelude::*;
 use log::error;
 
 #[derive(Debug)]
@@ -43,10 +43,15 @@ impl std::ops::Add for Headers {
             error!("Different value in separator field");
             panic!("Different value in separator field");
         }
-        if self.length >= rhs.length {
-            self
-        } else {
-            rhs
+        if self.length >= rhs.length { self } else { rhs }
+    }
+}
+impl From<Header> for Headers {
+    fn from(value: Header) -> Self {
+        Self {
+            html: value.html,
+            separator: value.separator,
+            length: value.len,
         }
     }
 }

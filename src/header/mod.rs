@@ -17,6 +17,7 @@ pub struct Header {
     separator: String,
     notetype: String,
     deck: String,
+    len: usize,
 }
 impl Header {
     pub fn generate_header(&self) -> Vec<String> {
@@ -27,6 +28,9 @@ impl Header {
             format!("#deck:{}", self.deck),
         ]
     }
+    pub fn separator(&self) -> String {
+        self.separator.clone()
+    }
 }
 impl<T: ToHeader> From<&T> for Header {
     fn from(value: &T) -> Self {
@@ -35,6 +39,7 @@ impl<T: ToHeader> From<&T> for Header {
             html: value.html(),
             notetype: value.notetype(),
             deck: value.deck(),
+            len: value.len(),
         }
     }
 }

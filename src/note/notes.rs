@@ -17,14 +17,19 @@ impl std::ops::Add for Notes {
         Self { notes, headers }
     }
 }
-impl Notes {
-    pub fn new(notes: Box<dyn Iterator<Item = Vec<String>>>, headers: Headers) -> Self {
-        Self { notes, headers }
+impl From<Note> for Notes {
+    fn from(value: Note) -> Self {
+        Self {
+            notes: value.notes,
+            headers: value.header.into(),
+        }
     }
+}
+impl Notes {
     pub fn generate(self) -> Vec<String> {
-        let headers = self.headers;
-        let mut result = headers.generate_header();
-        let separator = headers.separator();
+        let mut result = self.headers.generate_header();
+        let separator = self.headers.separator();
+
         let lines = self.notes.map(|texts| {
             let vec = texts
                 .into_iter()
@@ -32,6 +37,7 @@ impl Notes {
                 .collect::<Vec<_>>();
             vec.join(&separator)
         });
+
         result.extend(lines);
         result
     }

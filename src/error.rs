@@ -37,11 +37,19 @@ pub enum CLIError {
 }
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum FileError {
-    #[error("In {filename}.\nError kind: {kind}")]
+    #[error("In {filename}.\nError info: {error_info}")]
     IO {
         filename: String,
-        kind: std::io::ErrorKind,
+        error_info: String,
     },
+}
+impl FileError {
+    pub fn new(filename: &str, error_info: &std::io::Error) -> Self {
+        Self::IO {
+            filename: filename.to_string(),
+            error_info: error_info.to_string(),
+        }
+    }
 }
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum SerdeError {
