@@ -9,6 +9,8 @@ pub enum Error {
     #[error(transparent)]
     CommandLine(#[from] CLIError),
     #[error(transparent)]
+    Content(#[from] ContentError),
+    #[error(transparent)]
     Character(#[from] CharacterError),
 }
 
@@ -21,12 +23,17 @@ pub enum CharacterError {
     InvalidCharacter(char),
 }
 #[derive(Debug, Error, PartialEq, Eq)]
+pub enum ContentError {
+    #[error("All lines must have the same number of elements.")]
+    NotSameLength,
+}
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum CLIError {
     #[error("`--default` and `--poem` cannot be used together.")]
-    DefaultAndPoemTogether,
+    DefaultTogetherWithPoem,
 
-    #[error("Use `--output` when creating multiple files by `--default` or `--poem`.")]
-    UseOutputWhenCreatingMultipleFiles,
+    #[error("`--default` and `--poem` cannot be used with `--output` together.")]
+    DefaultOrPoemTogetherWithOutput,
 }
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum FileError {

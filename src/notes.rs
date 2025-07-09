@@ -33,7 +33,7 @@ impl Notes {
         result
     }
 }
-pub trait ToNotes: ToHeader + 'static {
+pub trait ToNotes: ToHeader + Default + Serialize + 'static {
     fn try_into_iter(self) -> Result<impl Iterator<Item = Vec<String>>, CharacterError>;
     fn try_get_notes(self) -> Result<Notes, CharacterError>
     where

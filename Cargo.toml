@@ -1,6 +1,6 @@
 [package]
 name = "anki_maker"
-version = "0.8.7"
+version = "0.8.8"
 edition = "2024"
 default-run = "ankimaker"
 
@@ -11,18 +11,12 @@ indicatif = "0.18"
 log = "0.4"
 env_logger = "0.11"
 serde = { version = "1.0", features = ["derive"] }
-toml = "0.8"
-eframe = { version = "0.31", features = [
-    "accesskit",
-    "default_fonts",
-    "glow",
-    "persistence",
+toml = "0.9"
 
-], optional = true }
 
 [[bin]]
 name = "ankimaker"
 path = "src/main.rs"
 
-[features]
-gui = ["eframe"]
+[profile.release]
+strip = true

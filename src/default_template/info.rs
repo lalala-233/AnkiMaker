@@ -10,11 +10,10 @@ pub struct Info {
 
 impl Default for Info {
     fn default() -> Self {
-        let str = String::new();
         Self {
-            deck: str.clone(),
+            deck: String::new(),
             mode: "default".to_string(),
-            notetype: str,
+            notetype: String::new(),
             separator: None,
         }
     }
